@@ -4,7 +4,6 @@
     <modules>
       <module fileurl="file://E:\Promotix\promotix\PromotixProject.iml" filepath="E:\Promotix\promotix\PromotixProject.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
-      <module fileurl="file://E:\Promotix\promotix\app\app.iml" filepath="E:\Promotix\promotix\app\app.iml" />
       <module fileurl="file://$PROJECT_DIR$/promotix.iml" filepath="$PROJECT_DIR$/promotix.iml" />
     </modules>
   </component>

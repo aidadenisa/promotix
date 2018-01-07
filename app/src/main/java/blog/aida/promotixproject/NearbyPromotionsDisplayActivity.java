@@ -1,15 +1,23 @@
 package blog.aida.promotixproject;
 
+import android.content.pm.PackageManager;
+import android.location.Address;
+import android.location.Geocoder;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
@@ -18,6 +26,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,9 +37,14 @@ import blog.aida.promotixproject.model.Store;
 public class NearbyPromotionsDisplayActivity extends FragmentActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
+
     private FirebaseDatabase database;
     private DatabaseReference promotionsReference;
     private DatabaseReference storeReference;
+
+    Geocoder geocoder;
+    private LatLng latLng;
+    private Marker marker;
 
     private ListView promotionListView;
     private PromotionAdapter promotionAdapter;
@@ -39,6 +53,8 @@ public class NearbyPromotionsDisplayActivity extends FragmentActivity implements
     private ChildEventListener databaseStoresEventListener;
 
     private ArrayList<Store> stores = new ArrayList<Store>();
+
+    private ArrayList<String> AssociatedArrayServicesCentres = new ArrayList<String>();
 
 
     @Override
@@ -124,6 +140,11 @@ public class NearbyPromotionsDisplayActivity extends FragmentActivity implements
     }
 
 
+
+
+
+
+
     /**
      * Manipulates the map once available.
      * This callback is triggered when the map is ready to be used.
@@ -147,14 +168,29 @@ public class NearbyPromotionsDisplayActivity extends FragmentActivity implements
         addStoresOnMap();
     }
 
-    public void addStoresOnMap(){
-        //mMap
-               // stores//for pe stores
-        if(stores != null && !stores.isEmpty()){
-//            Log.i("nearbypromotions","stors from db" + stores.get(0).getName());.
+    public void addStoresOnMap() {
 
+        if (stores != null && !stores.isEmpty()) {
 
+            for (int i = 0; i < stores.size(); i++) {
+
+               /* String[] latitudelongitude =  stores.get(i).getLatLng().split(",");
+                double latitude = Double.parseDouble(latitudelongitude[0]);
+                double longitude = Double.parseDouble(latitudelongitude[1]);
+                LatLng location = new LatLng(latitude, longitude);
+
+                    mMap.moveCamera(CameraUpdateFactory.newLatLng(location));
+                    mMap.addMarker(new MarkerOptions()
+                            .position(new LatLng(latitude, longitude))
+                            .title(stores.get(i).getName()));
+                            */
+                LatLng location = new LatLng(stores.get(i).getLat(), stores.get(i).getLng());
+                mMap.moveCamera(CameraUpdateFactory.newLatLng(location));
+                mMap.addMarker(new MarkerOptions()
+                        .position(new LatLng(stores.get(i).getLat(), stores.get(i).getLng()))
+                        .title(stores.get(i).getName()));
+            }
+           // Log.i("nearbypromotions","stors from db" + stores.get(1).getName()+ stores.get(1).getLat());
         }
-
     }
 }

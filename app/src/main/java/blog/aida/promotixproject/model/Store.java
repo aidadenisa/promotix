@@ -11,8 +11,10 @@ public class Store {
     private String name;
     private String address;
     private int categories;
-    private int lat;
-    private int lng;
+    //private String latlng;
+    private double lat;
+    private double lng;
+
 
     public String getName() {
         return name;
@@ -38,13 +40,17 @@ public class Store {
         this.categories = categories;
     }
 
-    public int getLat(){ return lat;}
+    /*public String getLatLng(){ return latlng;}
 
-    public void setLat(int lat) { this.lat = lat;}
+    public void setLat(String latlng) { this.latlng = latlng;}
+    */
+    public double getLat(){ return lat;}
 
-    public int getLng(){ return lng;}
+    public void setLat(double lat) { this.lat = lat;}
 
-    public void setLng(int lng) { this.lng = lng;}
+    public double getLng(){ return lng;}
+
+    public void setLng(double lng) { this.lng = lng;}
 
 
 }
