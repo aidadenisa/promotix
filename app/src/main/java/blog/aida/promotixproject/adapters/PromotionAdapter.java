@@ -20,6 +20,7 @@ import java.util.List;
 import blog.aida.promotixproject.R;
 import blog.aida.promotixproject.model.Promotion;
 import blog.aida.promotixproject.model.Store;
+import blog.aida.promotixproject.util.FontManager;
 
 /**
  * Created by aida on 06-Jan-18.
@@ -71,7 +72,12 @@ public class PromotionAdapter extends ArrayAdapter<Promotion> {
         TextView promotionShopName = (TextView) convertView.findViewById(R.id.promotion_shop_name);
         TextView promotionShopAddress = (TextView) convertView.findViewById(R.id.promotion_shop_address);
         TextView promotionCheckedVotes = (TextView) convertView.findViewById(R.id.promotion_checked_votes);
+        TextView promotionCheckedIcon = (TextView) convertView.findViewById(R.id.promotion_checked_icon);
         TextView promotionFakeVotes = (TextView) convertView.findViewById(R.id.promotion_fake_votes);
+        TextView promotionFakeIcon = (TextView) convertView.findViewById(R.id.promotion_fake_icon);
+
+        promotionCheckedIcon.setTypeface(FontManager.getTypeface(getContext(),FontManager.FONTAWESOME));
+        promotionFakeIcon.setTypeface(FontManager.getTypeface(getContext(),FontManager.FONTAWESOME));
 
         Promotion promotion = getItem(position);
 
@@ -79,8 +85,6 @@ public class PromotionAdapter extends ArrayAdapter<Promotion> {
 
         attachDatabaseReadListener(this, storeReference);
 
-
-        int a=2;
         if(store != null) {
             promotionShopName.setText(store.getName());
             promotionShopAddress.setText(store.getAddress());
@@ -89,7 +93,7 @@ public class PromotionAdapter extends ArrayAdapter<Promotion> {
         if(promotion != null) {
             promotionName.setText(promotion.getName());
             promotionCheckedVotes.setText(promotion.getGoodVotes() + "");
-            promotionCheckedVotes.setText(promotion.getBadVotes() + "");
+            promotionFakeVotes.setText(promotion.getBadVotes() + "");
         }
 
 
