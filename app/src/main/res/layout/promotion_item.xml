@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="20dp">
+
+    <LinearLayout
+        android:id="@+id/status_bar"
+        android:layout_width="10dp"
+        android:layout_height="match_parent"
+        android:background="@color/colorPrimary"
+        >
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:layout_weight="3">
+
+        <TextView
+            android:id="@+id/promotion_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="NUme promotie"/>
+        <TextView
+            android:id="@+id/promotion_shop_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Nume magazin"/>
+        <TextView
+            android:id="@+id/promotion_shop_address"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Adresa magazin"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="end"
+            android:textAlignment="viewEnd">
+
+            <TextView
+                android:id="@+id/promotion_checked_icon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+            <TextView
+                android:id="@+id/promotion_checked_votes"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="90" />
+            <TextView
+                android:id="@+id/promotion_fake_icon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+            <TextView
+                android:id="@+id/promotion_fake_votes"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="90" />
+
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:background="@color/colorAccent"
+        android:layout_weight="2">
+
+        <TextView
+            android:id="@+id/promotion_cuantum"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:text="50%"
+            />
+
+
+    </LinearLayout>
+
+
+
+</LinearLayout>

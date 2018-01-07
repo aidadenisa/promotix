@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "812412506582",
+    "firebase_url": "https://secret-backbone-190919.firebaseio.com",
+    "project_id": "secret-backbone-190919",
+    "storage_bucket": "secret-backbone-190919.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:812412506582:android:59a17567281897c2",
+        "android_client_info": {
+          "package_name": "blog.aida.promotixproject"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "812412506582-nb4c4rons4dc2s1vrupgtb1d87srb1cs.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "blog.aida.promotixproject",
+            "certificate_hash": "9d6e0372caa3b2db7da5e29df03d7e82e1e36eac"
+          }
+        },
+        {
+          "client_id": "812412506582-rc9jhnp5j51t8cuec51f97m2v2affk51.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCtroI6JchD7HLDajCPE6Zu9_N5BrvfN-A"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "812412506582-rc9jhnp5j51t8cuec51f97m2v2affk51.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
