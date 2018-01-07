@@ -1,4 +1,17 @@
 <resources>
     <string name="app_name">PromotixProject</string>
     <string name="title_activity_nearby_promotions_display">Promotix</string>
+    <string name="title_activity_add_promotion">Add promotion</string>
+
+    <string-array name="promotions_categories">
+        <item>Clothes</item>
+        <item>Shoes</item>
+        <item>Accessories</item>
+        <item>Pets</item>
+        <item>Services</item>
+        <item>Tourism</item>
+        <item>Electronics</item>
+        <item>Cars</item>
+        <item>Real Estate</item>
+    </string-array>
 </resources>

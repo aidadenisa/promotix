@@ -35,6 +35,7 @@
         android:layout_margin="20dp"
         android:text="@string/fa_plus"
         android:textSize="20sp"
+        android:onClick="openAddPromotionActivity"
         />
 
     <ListView

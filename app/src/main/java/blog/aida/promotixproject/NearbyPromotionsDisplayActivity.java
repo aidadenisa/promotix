@@ -1,8 +1,10 @@
 package blog.aida.promotixproject;
 
+import android.content.Intent;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 import android.widget.ListView;
 
@@ -158,5 +160,10 @@ public class NearbyPromotionsDisplayActivity extends FragmentActivity implements
 
         }
 
+    }
+
+    public void openAddPromotionActivity(View view) {
+        Intent goToAddPromotionActivity = new Intent(this, AddPromotionActivity.class);
+        startActivity(goToAddPromotionActivity);
     }
 }
