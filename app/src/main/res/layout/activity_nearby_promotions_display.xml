@@ -1,8 +1,8 @@
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:text="http://schemas.android.com/apk/res-auto"
     tools:context=".NearbyPromotionsDisplayActivity">
 
     <fragment xmlns:android="http://schemas.android.com/apk/res/android"
@@ -24,6 +24,15 @@
         android:layout_marginTop="20dp"
         android:iconifiedByDefault="false"
         android:queryHint="Cauta promotii" />
+
+    <Button
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:background="@drawable/roundedbutton"
+        android:layout_above="@+id/promotions_list_view"
+        android:layout_alignParentRight="true"
+        android:layout_margin="20dp"
+        android:text="bla"/>
 
     <ListView
         android:id="@+id/promotions_list_view"
