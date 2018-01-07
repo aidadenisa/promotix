@@ -2,6 +2,7 @@ package blog.aida.promotixproject;
 
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.ListView;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -15,23 +16,29 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import blog.aida.promotixproject.adapters.PromotionAdapter;
 import blog.aida.promotixproject.model.Promotion;
+import blog.aida.promotixproject.model.Store;
 
 public class NearbyPromotionsDisplayActivity extends FragmentActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
     private FirebaseDatabase database;
     private DatabaseReference promotionsReference;
+    private DatabaseReference storeReference;
 
     private ListView promotionListView;
     private PromotionAdapter promotionAdapter;
 
-    private ChildEventListener databaseEventListener;
+    private ChildEventListener databasePromotionsEventListener;
+    private ChildEventListener databaseStoresEventListener;
+
+    private ArrayList<Store> stores = new ArrayList<Store>();
 
 
     @Override
@@ -45,8 +52,10 @@ public class NearbyPromotionsDisplayActivity extends FragmentActivity implements
 
         database = FirebaseDatabase.getInstance();
         promotionsReference = database.getReference().child("promotions");
+        storeReference = database.getReference().child("stores");
 
-        attachDatabaseReadListener();
+        attachPromotionsDatabaseReadListener();
+        attachStoresDatabaseReadListener();
 
         // Initialize promotion ListView and its adapter
         List<Promotion> promotions = new ArrayList<>();
@@ -59,16 +68,17 @@ public class NearbyPromotionsDisplayActivity extends FragmentActivity implements
 
     }
 
-    private void attachDatabaseReadListener() {
-        if(databaseEventListener == null) {
-            databaseEventListener = new ChildEventListener() {
+    private void attachPromotionsDatabaseReadListener() {
+        if(databasePromotionsEventListener == null) {
+            databasePromotionsEventListener = new ChildEventListener() {
                 @Override
                 public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                     Promotion promotion = dataSnapshot.getValue(Promotion.class);
                     promotionAdapter.add(promotion);
                 }
                 @Override
-                public void onChildChanged(DataSnapshot dataSnapshot, String s) {}
+                public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+                }
                 @Override
                 public void onChildRemoved(DataSnapshot dataSnapshot) {}
                 @Override
@@ -77,10 +87,41 @@ public class NearbyPromotionsDisplayActivity extends FragmentActivity implements
                 public void onCancelled(DatabaseError databaseError) {}
             };
 
-            promotionsReference.addChildEventListener(databaseEventListener);
+            promotionsReference.addChildEventListener(databasePromotionsEventListener);
         }
     }
 
+    private void attachStoresDatabaseReadListener() {
+        if(databaseStoresEventListener == null) {
+            databaseStoresEventListener = new ChildEventListener() {
+                @Override
+                public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                    Store store = dataSnapshot.getValue(Store.class);
+                    stores.add(store);
+                }
+                @Override
+                public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+                }
+                @Override
+                public void onChildRemoved(DataSnapshot dataSnapshot) {}
+                @Override
+                public void onChildMoved(DataSnapshot dataSnapshot, String s) {}
+                @Override
+                public void onCancelled(DatabaseError databaseError) {}
+            };
+
+            storeReference.addChildEventListener(databaseStoresEventListener);
+        }
+
+        storeReference.addListenerForSingleValueEvent(new ValueEventListener() {
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if(mMap != null){
+                    addStoresOnMap();
+                }
+            }
+            public void onCancelled(DatabaseError firebaseError) { }
+        });
+    }
 
 
     /**
@@ -97,8 +138,23 @@ public class NearbyPromotionsDisplayActivity extends FragmentActivity implements
         mMap = googleMap;
 
         // Add a marker in Sydney and move the camera
+
+
         LatLng sydney = new LatLng(-34, 151);
         mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
         mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+
+        addStoresOnMap();
+    }
+
+    public void addStoresOnMap(){
+        //mMap
+               // stores//for pe stores
+        if(stores != null && !stores.isEmpty()){
+//            Log.i("nearbypromotions","stors from db" + stores.get(0).getName());.
+
+
+        }
+
     }
 }

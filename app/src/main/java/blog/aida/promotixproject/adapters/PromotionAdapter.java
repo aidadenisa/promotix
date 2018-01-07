@@ -2,13 +2,11 @@ package blog.aida.promotixproject.adapters;
 
 import android.app.Activity;
 import android.content.Context;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
-import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -31,8 +29,9 @@ public class PromotionAdapter extends ArrayAdapter<Promotion> {
 
     private ValueEventListener databaseEventListener;
     private Store store;
+    private Promotion promotion;
 
-    public void setStoreDetailsFromBD(Store store) {
+    public void setStoreDetailsFromDB(Store store) {
         this.store = store;
         this.notifyDataSetChanged();
     }
@@ -49,7 +48,7 @@ public class PromotionAdapter extends ArrayAdapter<Promotion> {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     Store store = dataSnapshot.getValue(Store.class);
-                    self.setStoreDetailsFromBD(store);
+                    self.setStoreDetailsFromDB(store);
                 }
 
                 @Override
@@ -79,8 +78,6 @@ public class PromotionAdapter extends ArrayAdapter<Promotion> {
 
         attachDatabaseReadListener(this, storeReference);
 
-
-        int a=2;
         if(store != null) {
             promotionShopName.setText(store.getName());
             promotionShopAddress.setText(store.getAddress());
