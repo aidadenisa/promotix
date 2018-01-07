@@ -3,6 +3,7 @@ package blog.aida.promotixproject;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.Button;
 import android.widget.ListView;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -24,6 +25,7 @@ import java.util.List;
 import blog.aida.promotixproject.adapters.PromotionAdapter;
 import blog.aida.promotixproject.model.Promotion;
 import blog.aida.promotixproject.model.Store;
+import blog.aida.promotixproject.util.FontManager;
 
 public class NearbyPromotionsDisplayActivity extends FragmentActivity implements OnMapReadyCallback {
 
@@ -64,8 +66,8 @@ public class NearbyPromotionsDisplayActivity extends FragmentActivity implements
         promotionAdapter = new PromotionAdapter(this, R.layout.promotion_item, promotions);
         promotionListView.setAdapter(promotionAdapter);
 
-
-
+        Button addPromotionButton = (Button) findViewById(R.id.add_promotion_button);
+        addPromotionButton.setTypeface(FontManager.getTypeface(this,FontManager.FONTAWESOME));
     }
 
     private void attachPromotionsDatabaseReadListener() {
