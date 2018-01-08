@@ -20,6 +20,7 @@ public class Promotion {
     private Date promoBeginDate;
     private Date promoEndDate;
     private int category;
+    private boolean isExpanded;
 
     public int getBadVotes() {
         return badVotes;
@@ -91,5 +92,13 @@ public class Promotion {
 
     public void setCuantum(String cuantum) {
         this.cuantum = cuantum;
+    }
+
+    public boolean isExpanded() {
+        return isExpanded;
+    }
+
+    public void setExpanded(boolean expanded) {
+        isExpanded = expanded;
     }
 }

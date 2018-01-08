@@ -1,10 +1,15 @@
 package blog.aida.promotixproject.adapters;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
+import android.transition.ChangeBounds;
+import android.transition.TransitionManager;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AnticipateOvershootInterpolator;
 import android.widget.ArrayAdapter;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.google.firebase.database.DataSnapshot;
@@ -31,6 +36,8 @@ public class PromotionAdapter extends ArrayAdapter<Promotion> {
     private ValueEventListener databaseEventListener;
     private Store store;
     private Promotion promotion;
+
+
 
     public void setStoreDetailsFromDB(Store store) {
         this.store = store;
@@ -96,7 +103,10 @@ public class PromotionAdapter extends ArrayAdapter<Promotion> {
         }
 
 
+
         return convertView;
     }
+
+
 }
 

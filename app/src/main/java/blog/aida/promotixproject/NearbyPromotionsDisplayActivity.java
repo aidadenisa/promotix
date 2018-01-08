@@ -1,5 +1,6 @@
 package blog.aida.promotixproject;
 
+import android.annotation.TargetApi;
 import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
@@ -8,6 +9,9 @@ import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
+import android.view.View;
+import android.view.animation.AnticipateOvershootInterpolator;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -25,6 +29,9 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+
+import android.transition.ChangeBounds;
+import android.transition.TransitionManager;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -79,7 +86,6 @@ public class NearbyPromotionsDisplayActivity extends FragmentActivity implements
 
         promotionAdapter = new PromotionAdapter(this, R.layout.promotion_item, promotions);
         promotionListView.setAdapter(promotionAdapter);
-
 
 
     }
@@ -139,7 +145,43 @@ public class NearbyPromotionsDisplayActivity extends FragmentActivity implements
         });
     }
 
+    @TargetApi(19)
+    public void expandListItem(View view) {
 
+        // Initialize a new ChangeBounds transition instance
+        ChangeBounds changeBounds = new ChangeBounds();
+
+        // Set the transition start delay
+        changeBounds.setStartDelay(300);
+
+        // Set the transition interpolator
+        changeBounds.setInterpolator(new AnticipateOvershootInterpolator());
+
+        // Specify the transition duration
+        changeBounds.setDuration(1000);
+
+        // Begin the delayed transition
+        LinearLayout linearLayout = (LinearLayout) view.findViewById(R.id.promotion_item);
+        TransitionManager.beginDelayedTransition(linearLayout, changeBounds);
+
+        // Toggle the button size
+        toggleSize(view);
+    }
+
+    public void toggleSize(View view) {
+
+        String isExpanded = "isExpanded";
+
+        Log.i("clicked", " on item which is expanded " + view.getTag());
+
+        if(!view.getTag().equals(isExpanded)) {
+            view.getLayoutParams().height = (int)view.getLayoutParams().height + view.getLayoutParams().height*50/100;
+            view.setTag("isExpanded");
+        } else {
+            view.getLayoutParams().height = (int)view.getLayoutParams().height * 2 / 3;
+            view.setTag("isNotExpanded");
+        }
+    }
 
 
 

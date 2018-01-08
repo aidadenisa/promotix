@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/promotion_item"
     android:orientation="horizontal"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="20dp">
+    android:layout_margin="20dp"
+    android:tag="isNotExpanded"
+    android:onClick="expandListItem">
 
     <LinearLayout
         android:id="@+id/status_bar"
