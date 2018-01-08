@@ -1,30 +1,56 @@
 package blog.aida.promotixproject;
 
+import android.annotation.SuppressLint;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.location.Address;
+import android.location.Criteria;
 import android.location.Geocoder;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
+import android.os.Build;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
+import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+
+import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
+
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -34,17 +60,29 @@ import blog.aida.promotixproject.adapters.PromotionAdapter;
 import blog.aida.promotixproject.model.Promotion;
 import blog.aida.promotixproject.model.Store;
 
-public class NearbyPromotionsDisplayActivity extends FragmentActivity implements OnMapReadyCallback {
+import com.google.android.gms.location.places.GeoDataClient;
+import com.google.android.gms.location.places.PlaceDetectionClient;
+import com.google.android.gms.location.places.PlaceLikelihood;
+import com.google.android.gms.location.places.PlaceLikelihoodBufferResponse;
+import com.google.android.gms.location.places.Places;
+
+public class NearbyPromotionsDisplayActivity extends FragmentActivity implements
+        OnMapReadyCallback,
+        GoogleApiClient.ConnectionCallbacks,
+        GoogleApiClient.OnConnectionFailedListener,
+        LocationListener {
 
     private GoogleMap mMap;
+    private GoogleApiClient mGoogleApiClient;
+    public static final String TAG = NearbyPromotionsDisplayActivity.class.getSimpleName();
+
+    private final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
+    private LocationRequest mLocationRequest;
+
 
     private FirebaseDatabase database;
     private DatabaseReference promotionsReference;
     private DatabaseReference storeReference;
-
-    Geocoder geocoder;
-    private LatLng latLng;
-    private Marker marker;
 
     private ListView promotionListView;
     private PromotionAdapter promotionAdapter;
@@ -54,17 +92,30 @@ public class NearbyPromotionsDisplayActivity extends FragmentActivity implements
 
     private ArrayList<Store> stores = new ArrayList<Store>();
 
-    private ArrayList<String> AssociatedArrayServicesCentres = new ArrayList<String>();
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .addApi(LocationServices.API)
+                .build();
+
+        mLocationRequest = LocationRequest.create()
+                .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
+                .setInterval(10 * 1000)        // 10 seconds, in milliseconds
+                .setFastestInterval(1 * 1000); // 1 second, in milliseconds
+
         setContentView(R.layout.activity_nearby_promotions_display);
+
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
 
         database = FirebaseDatabase.getInstance();
         promotionsReference = database.getReference().child("promotions");
@@ -80,27 +131,67 @@ public class NearbyPromotionsDisplayActivity extends FragmentActivity implements
         promotionAdapter = new PromotionAdapter(this, R.layout.promotion_item, promotions);
         promotionListView.setAdapter(promotionAdapter);
 
-
-
     }
 
+    private void setUpMapIfNeeded() {
+        // Do a null check to confirm that we have not already instantiated the map.
+        if (mMap == null) {
+            // Try to obtain the map from the SupportMapFragment.
+            SupportMapFragment mapFrag = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
+            mapFrag.getMapAsync(this);
+            // Check if we were successful in obtaining the map.
+            if (mMap != null) {
+                setUpMap();
+            }
+        }
+    }
+
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        setUpMapIfNeeded();
+        mGoogleApiClient.connect();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (mGoogleApiClient.isConnected()) {
+            LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, (com.google.android.gms.location.LocationListener) this);
+            mGoogleApiClient.disconnect();
+        }
+    }
+
+    private void setUpMap() {
+        mMap.addMarker(new MarkerOptions().position(new LatLng(0, 0)).title("Marker"));
+    }
+
+
     private void attachPromotionsDatabaseReadListener() {
-        if(databasePromotionsEventListener == null) {
+        if (databasePromotionsEventListener == null) {
             databasePromotionsEventListener = new ChildEventListener() {
                 @Override
                 public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                     Promotion promotion = dataSnapshot.getValue(Promotion.class);
                     promotionAdapter.add(promotion);
                 }
+
                 @Override
                 public void onChildChanged(DataSnapshot dataSnapshot, String s) {
                 }
+
                 @Override
-                public void onChildRemoved(DataSnapshot dataSnapshot) {}
+                public void onChildRemoved(DataSnapshot dataSnapshot) {
+                }
+
                 @Override
-                public void onChildMoved(DataSnapshot dataSnapshot, String s) {}
+                public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+                }
+
                 @Override
-                public void onCancelled(DatabaseError databaseError) {}
+                public void onCancelled(DatabaseError databaseError) {
+                }
             };
 
             promotionsReference.addChildEventListener(databasePromotionsEventListener);
@@ -108,22 +199,29 @@ public class NearbyPromotionsDisplayActivity extends FragmentActivity implements
     }
 
     private void attachStoresDatabaseReadListener() {
-        if(databaseStoresEventListener == null) {
+        if (databaseStoresEventListener == null) {
             databaseStoresEventListener = new ChildEventListener() {
                 @Override
                 public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                     Store store = dataSnapshot.getValue(Store.class);
                     stores.add(store);
                 }
+
                 @Override
                 public void onChildChanged(DataSnapshot dataSnapshot, String s) {
                 }
+
                 @Override
-                public void onChildRemoved(DataSnapshot dataSnapshot) {}
+                public void onChildRemoved(DataSnapshot dataSnapshot) {
+                }
+
                 @Override
-                public void onChildMoved(DataSnapshot dataSnapshot, String s) {}
+                public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+                }
+
                 @Override
-                public void onCancelled(DatabaseError databaseError) {}
+                public void onCancelled(DatabaseError databaseError) {
+                }
             };
 
             storeReference.addChildEventListener(databaseStoresEventListener);
@@ -131,18 +229,15 @@ public class NearbyPromotionsDisplayActivity extends FragmentActivity implements
 
         storeReference.addListenerForSingleValueEvent(new ValueEventListener() {
             public void onDataChange(DataSnapshot dataSnapshot) {
-                if(mMap != null){
+                if (mMap != null) {
                     addStoresOnMap();
                 }
             }
-            public void onCancelled(DatabaseError firebaseError) { }
+
+            public void onCancelled(DatabaseError firebaseError) {
+            }
         });
     }
-
-
-
-
-
 
 
     /**
@@ -154,18 +249,56 @@ public class NearbyPromotionsDisplayActivity extends FragmentActivity implements
      * it inside the SupportMapFragment. This method will only be triggered once the user has
      * installed Google Play services and returned to the app.
      */
+
+
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
-        // Add a marker in Sydney and move the camera
+    }
 
 
-        LatLng sydney = new LatLng(-34, 151);
-        mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+    private void handleNewLocation(Location location) {
+        double currentLatitude = location.getLatitude();
+        double currentLongitude = location.getLongitude();
+        LatLng latLng = new LatLng(currentLatitude, currentLongitude);
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+        mMap.setMyLocationEnabled(true);
 
-        addStoresOnMap();
+        if (location != null) {
+            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(location.getLatitude(), location.getLongitude()), 13));
+
+            CameraPosition cameraPosition = new CameraPosition.Builder()
+                    .target(new LatLng(location.getLatitude(), location.getLongitude()))      // Sets the center of the map to location user
+                    .zoom(17)                   // Sets the zoom
+                    .bearing(90)                // Sets the orientation of the camera to east
+                    .tilt(40)                   // Sets the tilt of the camera to 30 degrees
+                    .build();                   // Creates a CameraPosition from the builder
+            mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+        }
+
+
+    }
+
+    @Override
+    public void onConnected(Bundle bundle) {
+        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
+        @SuppressLint("MissingPermission") Location location = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+        if (location == null) {
+            LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, (com.google.android.gms.location.LocationListener) this);
+        }
+        else {
+            handleNewLocation(location);
+        }
     }
 
     public void addStoresOnMap() {
@@ -184,13 +317,57 @@ public class NearbyPromotionsDisplayActivity extends FragmentActivity implements
                             .position(new LatLng(latitude, longitude))
                             .title(stores.get(i).getName()));
                             */
-                LatLng location = new LatLng(stores.get(i).getLat(), stores.get(i).getLng());
-                mMap.moveCamera(CameraUpdateFactory.newLatLng(location));
+                LatLng location2 = new LatLng(stores.get(i).getLat(), stores.get(i).getLng());
+               // mMap.moveCamera(CameraUpdateFactory.newLatLng(location2));
                 mMap.addMarker(new MarkerOptions()
                         .position(new LatLng(stores.get(i).getLat(), stores.get(i).getLng()))
                         .title(stores.get(i).getName()));
             }
-           // Log.i("nearbypromotions","stors from db" + stores.get(1).getName()+ stores.get(1).getLat());
+            // Log.i("nearbypromotions","stors from db" + stores.get(1).getName()+ stores.get(1).getLat());
         }
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+        Log.i(TAG, "Location services suspended. Please reconnect.");
+    }
+
+    @Override
+    public void onConnectionFailed(ConnectionResult connectionResult) {
+        if (connectionResult.hasResolution()) {
+            try {
+                // Start an Activity that tries to resolve the error
+                connectionResult.startResolutionForResult(this, CONNECTION_FAILURE_RESOLUTION_REQUEST);
+            } catch (IntentSender.SendIntentException e) {
+                e.printStackTrace();
+            }
+        } else {
+            Log.i(TAG, "Location services connection failed with code " + connectionResult.getErrorCode());
+        }
+    }
+
+    @Override
+    public void onPointerCaptureChanged(boolean hasCapture) {
+
+    }
+
+    @Override
+    public void onLocationChanged(Location location) {
+        handleNewLocation(location);
+    }
+
+    @Override
+    public void onStatusChanged(String s, int i, Bundle bundle) {
+
+    }
+
+    @Override
+    public void onProviderEnabled(String s) {
+
+    }
+
+    @Override
+    public void onProviderDisabled(String s) {
+
     }
 }
