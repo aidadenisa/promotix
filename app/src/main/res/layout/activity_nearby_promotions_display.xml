@@ -12,16 +12,17 @@
         android:name="com.google.android.gms.maps.SupportMapFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context="blog.aida.promotixproject.NearbyPromotionsDisplayActivity" />
+        tools:context="blog.aida.promotixproject.NearbyPromotionsDisplayActivity"/>
+
 
     <SearchView
         android:id="@+id/search_input"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="#ffffff"
-        android:layout_marginLeft="20dp"
-        android:layout_marginRight="20dp"
-        android:layout_marginTop="20dp"
+        android:layout_marginLeft="30dp"
+        android:layout_marginRight="30dp"
+        android:layout_marginTop="55dp"
         android:iconifiedByDefault="false"
         android:queryHint="Cauta promotii" />
 
@@ -47,5 +48,6 @@
         android:divider="@android:color/transparent"
         android:transcriptMode="alwaysScroll"
         tools:listitem="@layout/promotion_item" />
+
 
 </RelativeLayout>
