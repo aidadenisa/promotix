@@ -46,7 +46,8 @@
             <TextView
                 android:id="@+id/promotion_checked_icon"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:text="@string/fa_check_circle_o"/>
             <TextView
                 android:id="@+id/promotion_checked_votes"
                 android:layout_width="wrap_content"
@@ -55,7 +56,8 @@
             <TextView
                 android:id="@+id/promotion_fake_icon"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:text="@string/fa_times_circle_o"/>
             <TextView
                 android:id="@+id/promotion_fake_votes"
                 android:layout_width="wrap_content"
