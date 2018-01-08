@@ -18,6 +18,8 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -66,7 +68,7 @@ import com.google.android.gms.location.places.PlaceLikelihood;
 import com.google.android.gms.location.places.PlaceLikelihoodBufferResponse;
 import com.google.android.gms.location.places.Places;
 
-public class NearbyPromotionsDisplayActivity extends FragmentActivity implements
+public class NearbyPromotionsDisplayActivity extends AppCompatActivity implements
         OnMapReadyCallback,
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
@@ -131,6 +133,9 @@ public class NearbyPromotionsDisplayActivity extends FragmentActivity implements
         promotionAdapter = new PromotionAdapter(this, R.layout.promotion_item, promotions);
         promotionListView.setAdapter(promotionAdapter);
 
+        Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
+        setSupportActionBar(myToolbar);
+
     }
 
     private void setUpMapIfNeeded() {
@@ -147,21 +152,21 @@ public class NearbyPromotionsDisplayActivity extends FragmentActivity implements
     }
 
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        setUpMapIfNeeded();
-        mGoogleApiClient.connect();
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        if (mGoogleApiClient.isConnected()) {
-            LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, (com.google.android.gms.location.LocationListener) this);
-            mGoogleApiClient.disconnect();
-        }
-    }
+//    @Override
+//    protected void onResume() {
+//        super.onResume();
+//        setUpMapIfNeeded();
+//        mGoogleApiClient.connect();
+//    }
+//
+//    @Override
+//    protected void onPause() {
+//        super.onPause();
+//        if (mGoogleApiClient.isConnected()) {
+//            LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, (com.google.android.gms.location.LocationListener) this);
+//            mGoogleApiClient.disconnect();
+//        }
+//    }
 
     private void setUpMap() {
         mMap.addMarker(new MarkerOptions().position(new LatLng(0, 0)).title("Marker"));
@@ -254,6 +259,7 @@ public class NearbyPromotionsDisplayActivity extends FragmentActivity implements
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
+        mGoogleApiClient.connect();
 
     }
 
@@ -270,8 +276,8 @@ public class NearbyPromotionsDisplayActivity extends FragmentActivity implements
 
             CameraPosition cameraPosition = new CameraPosition.Builder()
                     .target(new LatLng(location.getLatitude(), location.getLongitude()))      // Sets the center of the map to location user
-                    .zoom(17)                   // Sets the zoom
-                    .bearing(90)                // Sets the orientation of the camera to east
+                    .zoom(14)                   // Sets the zoom
+                    //.bearing(90)                // Sets the orientation of the camera to east
                     .tilt(40)                   // Sets the tilt of the camera to 30 degrees
                     .build();                   // Creates a CameraPosition from the builder
             mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
