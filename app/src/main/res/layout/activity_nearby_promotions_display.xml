@@ -1,9 +1,14 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:text="http://schemas.android.com/apk/res-auto"
     tools:context=".NearbyPromotionsDisplayActivity">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context=".NearbyPromotionsDisplayActivity"
+    android:focusableInTouchMode="true">
+
 
     <fragment xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:map="http://schemas.android.com/apk/res-auto"
@@ -12,6 +17,7 @@
         android:name="com.google.android.gms.maps.SupportMapFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_marginTop="55dp"
         tools:context="blog.aida.promotixproject.NearbyPromotionsDisplayActivity"/>
 
 
@@ -20,11 +26,12 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="#ffffff"
-        android:layout_marginLeft="30dp"
-        android:layout_marginRight="30dp"
-        android:layout_marginTop="55dp"
+        android:layout_marginLeft="60dp"
+        android:layout_marginRight="60dp"
+        android:layout_marginTop="65dp"
         android:iconifiedByDefault="false"
-        android:queryHint="Cauta promotii" />
+        android:queryHint="Search for sales"
+        android:focusedByDefault="false"/>
 
     <Button
         android:id="@+id/add_promotion_button"
@@ -42,12 +49,54 @@
     <ListView
         android:id="@+id/promotions_list_view"
         android:layout_width="match_parent"
-        android:layout_height="300dp"
+        android:layout_height="250dp"
         android:background="#ffffff"
         android:layout_alignParentBottom="true"
         android:divider="@android:color/transparent"
         android:transcriptMode="alwaysScroll"
         tools:listitem="@layout/promotion_item" />
+
+    <android.support.v4.widget.DrawerLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/drawer_layout">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <android.support.v7.widget.Toolbar android:id="@+id/my_toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                android:background="?attr/colorPrimary"
+                android:elevation="4dp"
+                android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
+                app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+                xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:app="http://schemas.android.com/apk/res-auto" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Main Layout"
+                android:layout_gravity="center_vertical"
+                android:textAlignment="center"
+                android:textStyle="bold"
+                />
+        </LinearLayout>
+
+        <android.support.design.widget.NavigationView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:menu="@menu/menu"
+            android:layout_gravity="start"
+            app:headerLayout="@layout/menu_header">
+
+        </android.support.design.widget.NavigationView>
+
+    </android.support.v4.widget.DrawerLayout>
+
+
 
 
 </RelativeLayout>

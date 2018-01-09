@@ -1,0 +1,12 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:id="@+id/aaa"
+        android:title="About" />
+    <item android:id="@+id/signup_menu_item"
+        android:title="Sign Up" />
+    <item android:id="@+id/login_menu_item"
+        android:title="Log in" />
+    <item android:id="@+id/about_menu_item"
+        android:title="About Promotix" />
+
+</menu>

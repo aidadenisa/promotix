@@ -1,6 +1,8 @@
 <resources>
     <string name="app_name">PromotixProject</string>
     <string name="title_activity_nearby_promotions_display">Promotix</string>
+    <string name="open">Open</string>
+    <string name="closed">Closed</string>
     <string name="title_activity_add_promotion">Add promotion</string>
 
     <string-array name="promotions_categories">

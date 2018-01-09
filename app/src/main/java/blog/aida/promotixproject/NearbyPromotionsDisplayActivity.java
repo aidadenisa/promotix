@@ -19,7 +19,12 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.view.View;
@@ -70,7 +75,7 @@ import com.google.android.gms.location.places.PlaceLikelihood;
 import com.google.android.gms.location.places.PlaceLikelihoodBufferResponse;
 import com.google.android.gms.location.places.Places;
 
-public class NearbyPromotionsDisplayActivity extends FragmentActivity implements
+public class NearbyPromotionsDisplayActivity extends AppCompatActivity implements
         OnMapReadyCallback,
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
@@ -96,12 +101,12 @@ public class NearbyPromotionsDisplayActivity extends FragmentActivity implements
 
     private ArrayList<Store> stores = new ArrayList<Store>();
 
-
+    private DrawerLayout drawerLayout;
+    private ActionBarDrawerToggle drawerToggle;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_nearby_promotions_display);
 
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(this)
@@ -114,7 +119,7 @@ public class NearbyPromotionsDisplayActivity extends FragmentActivity implements
                 .setInterval(10 * 1000)        // 10 seconds, in milliseconds
                 .setFastestInterval(1 * 1000); // 1 second, in milliseconds
 
-
+        setContentView(R.layout.activity_nearby_promotions_display);
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
 //        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
@@ -140,6 +145,26 @@ public class NearbyPromotionsDisplayActivity extends FragmentActivity implements
 
         Button addPromotionButton = (Button) findViewById(R.id.add_promotion_button);
         addPromotionButton.setTypeface(FontManager.getTypeface(this,FontManager.FONTAWESOME));
+        Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
+        setSupportActionBar(myToolbar);
+
+        drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        drawerToggle = new ActionBarDrawerToggle(this,drawerLayout,R.string.open, R.string.closed);
+
+        drawerLayout.addDrawerListener(drawerToggle);
+        drawerToggle.syncState();
+
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        if(drawerToggle.onOptionsItemSelected(item)) {
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     private void setUpMapIfNeeded() {
@@ -156,7 +181,21 @@ public class NearbyPromotionsDisplayActivity extends FragmentActivity implements
     }
 
 
-
+//    @Override
+//    protected void onResume() {
+//        super.onResume();
+//        setUpMapIfNeeded();
+//        mGoogleApiClient.connect();
+//    }
+//
+//    @Override
+//    protected void onPause() {
+//        super.onPause();
+//        if (mGoogleApiClient.isConnected()) {
+//            LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, (com.google.android.gms.location.LocationListener) this);
+//            mGoogleApiClient.disconnect();
+//        }
+//    }
 
     private void setUpMap() {
         mMap.addMarker(new MarkerOptions().position(new LatLng(0, 0)).title("Marker"));
@@ -266,8 +305,8 @@ public class NearbyPromotionsDisplayActivity extends FragmentActivity implements
 
             CameraPosition cameraPosition = new CameraPosition.Builder()
                     .target(new LatLng(location.getLatitude(), location.getLongitude()))      // Sets the center of the map to location user
-                    .zoom(17)                   // Sets the zoom
-                    .bearing(90)                // Sets the orientation of the camera to east
+                    .zoom(14)                   // Sets the zoom
+                    //.bearing(90)                // Sets the orientation of the camera to east
                     .tilt(40)                   // Sets the tilt of the camera to 30 degrees
                     .build();                   // Creates a CameraPosition from the builder
             mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
@@ -346,8 +385,6 @@ public class NearbyPromotionsDisplayActivity extends FragmentActivity implements
             Log.i(TAG, "Location services connection failed with code " + connectionResult.getErrorCode());
         }
     }
-
-
 
     @Override
     public void onPointerCaptureChanged(boolean hasCapture) {
