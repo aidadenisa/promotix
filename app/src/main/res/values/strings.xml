@@ -3,4 +3,5 @@
     <string name="title_activity_nearby_promotions_display">Promotix</string>
     <string name="open">Open</string>
     <string name="closed">Closed</string>
+    <string name="location_service_error">Error loading location services</string>
 </resources>

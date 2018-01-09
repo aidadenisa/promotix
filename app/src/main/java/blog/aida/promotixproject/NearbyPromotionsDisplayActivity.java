@@ -24,6 +24,7 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -76,7 +77,7 @@ import com.google.android.gms.location.places.PlaceLikelihoodBufferResponse;
 import com.google.android.gms.location.places.Places;
 import com.firebase.ui.auth.AuthUI;
 
-public class NearbyPromotionsDisplayActivity extends FragmentActivity implements
+public class NearbyPromotionsDisplayActivity extends AppCompatActivity implements
         OnMapReadyCallback,
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
@@ -156,7 +157,7 @@ public class NearbyPromotionsDisplayActivity extends FragmentActivity implements
         promotionListView.setAdapter(promotionAdapter);
 
         Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
-//        setSupportActionBar(myToolbar);
+        setSupportActionBar(myToolbar);
 
         drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawerToggle = new ActionBarDrawerToggle(this, drawerLayout, R.string.open, R.string.closed);
@@ -164,13 +165,12 @@ public class NearbyPromotionsDisplayActivity extends FragmentActivity implements
         drawerLayout.addDrawerListener(drawerToggle);
         drawerToggle.syncState();
 
-//        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.navigation_view);
         if (navigationView != null) {
             navigationView.setNavigationItemSelectedListener(this);
         }
-
 
         providersForSignIn = new ArrayList<>();
 
@@ -200,30 +200,37 @@ public class NearbyPromotionsDisplayActivity extends FragmentActivity implements
     //cand m-am logat
     private void onSingnedInInitialize(String displayName) {
         userName = displayName;
+        setMenuItemsVisibility(true);
     }
 
     //cand m-am delogat
     private void onSignedOutcleanup() {
         userName = ANONYMOUS;
+        setMenuItemsVisibility(false);
     }
 
+    private void setMenuItemsVisibility(boolean loggedIn) {
+        NavigationView navigationView = (NavigationView) findViewById(R.id.navigation_view);
+        Menu menu = navigationView.getMenu();
+
+        if(loggedIn) {
+            menu.findItem(R.id.login_menu_item).setVisible(false);
+            menu.findItem(R.id.logout_menu_item).setVisible(true);
+        } else {
+            menu.findItem(R.id.login_menu_item).setVisible(true);
+            menu.findItem(R.id.logout_menu_item).setVisible(false);
+        }
+    }
 
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
+        drawerLayout.closeDrawers();
 
         switch(id) {
-            case R.id.signup_menu_item:
-                startActivityForResult(
-                        AuthUI.getInstance()
-                                .createSignInIntentBuilder()
-                                .setIsSmartLockEnabled(false)
-                                .setProviders(providersForSignIn)
-                                .build(),
-                        SIGN_IN_REQUEST);
-                break;
             case R.id.login_menu_item:
+                onSignedOutcleanup();
                 startActivityForResult(
                         AuthUI.getInstance()
                                 .createSignInIntentBuilder()
@@ -232,12 +239,18 @@ public class NearbyPromotionsDisplayActivity extends FragmentActivity implements
                                 .build(),
                         SIGN_IN_REQUEST);
                 break;
+
+            case R.id.logout_menu_item:
+                AuthUI.getInstance().signOut(this);
+                onSignedOutcleanup();
+                Toast.makeText(this, "You have been signed out", Toast.LENGTH_SHORT);
+                return true;
 
             case R.id.about_menu_item:
                 break;
 
             default:
-                break;
+                return true;
         }
 
         return true;
@@ -425,7 +438,11 @@ public class NearbyPromotionsDisplayActivity extends FragmentActivity implements
         }
         @SuppressLint("MissingPermission") Location location = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
         if (location == null) {
-            LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, (com.google.android.gms.location.LocationListener) this);
+            try{
+                LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, (com.google.android.gms.location.LocationListener) this);
+            } catch(Exception e) {
+                Toast.makeText(this,R.string.location_service_error, Toast.LENGTH_SHORT);
+            }
         }
         else {
             handleNewLocation(location);
