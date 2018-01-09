@@ -138,7 +138,7 @@ tools:context=".AddPromotionActivity">
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         android:layout_margin="20dp"
-        android:onClick="addPromotion"
+        android:onClick="getPlaceFromDatePicker"
         />
 
 </RelativeLayout>

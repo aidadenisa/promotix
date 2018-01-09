@@ -101,6 +101,7 @@ public class NearbyPromotionsDisplayActivity extends FragmentActivity implements
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_nearby_promotions_display);
 
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(this)
@@ -113,12 +114,14 @@ public class NearbyPromotionsDisplayActivity extends FragmentActivity implements
                 .setInterval(10 * 1000)        // 10 seconds, in milliseconds
                 .setFastestInterval(1 * 1000); // 1 second, in milliseconds
 
-        setContentView(R.layout.activity_nearby_promotions_display);
+
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.map);
-        mapFragment.getMapAsync(this);
+//        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+//                .findFragmentById(R.id.map);
+//        mapFragment.getMapAsync(this);
+
+        setUpMapIfNeeded();
 
 
         database = FirebaseDatabase.getInstance();
@@ -153,21 +156,7 @@ public class NearbyPromotionsDisplayActivity extends FragmentActivity implements
     }
 
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        setUpMapIfNeeded();
-        mGoogleApiClient.connect();
-    }
 
-    @Override
-    protected void onPause() {
-        super.onPause();
-        if (mGoogleApiClient.isConnected()) {
-            LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, (com.google.android.gms.location.LocationListener) this);
-            mGoogleApiClient.disconnect();
-        }
-    }
 
     private void setUpMap() {
         mMap.addMarker(new MarkerOptions().position(new LatLng(0, 0)).title("Marker"));
@@ -260,6 +249,7 @@ public class NearbyPromotionsDisplayActivity extends FragmentActivity implements
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
+        mGoogleApiClient.connect();
 
     }
 
@@ -356,6 +346,8 @@ public class NearbyPromotionsDisplayActivity extends FragmentActivity implements
             Log.i(TAG, "Location services connection failed with code " + connectionResult.getErrorCode());
         }
     }
+
+
 
     @Override
     public void onPointerCaptureChanged(boolean hasCapture) {
