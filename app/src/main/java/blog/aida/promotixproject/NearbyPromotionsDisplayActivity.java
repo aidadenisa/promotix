@@ -14,6 +14,7 @@ import android.location.LocationManager;
 import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
@@ -30,6 +31,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.firebase.ui.auth.AuthUI;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -49,6 +51,8 @@ import com.google.android.gms.maps.model.Marker;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -70,20 +74,30 @@ import com.google.android.gms.location.places.PlaceDetectionClient;
 import com.google.android.gms.location.places.PlaceLikelihood;
 import com.google.android.gms.location.places.PlaceLikelihoodBufferResponse;
 import com.google.android.gms.location.places.Places;
+import com.firebase.ui.auth.AuthUI;
 
-public class NearbyPromotionsDisplayActivity extends AppCompatActivity implements
+public class NearbyPromotionsDisplayActivity extends FragmentActivity implements
         OnMapReadyCallback,
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
-        LocationListener {
+        LocationListener,
+        NavigationView.OnNavigationItemSelectedListener {
 
     private GoogleMap mMap;
     private GoogleApiClient mGoogleApiClient;
     public static final String TAG = NearbyPromotionsDisplayActivity.class.getSimpleName();
 
+    public static final String ANONYMOUS = "anonymousUSER";
     private final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
+    private final static int SIGN_IN_REQUEST = 1000;
+
     private LocationRequest mLocationRequest;
 
+    private String userName;
+
+    private FirebaseAuth firebaseAuth;
+    private FirebaseAuth.AuthStateListener authStateListener;
+    private List<AuthUI.IdpConfig> providersForSignIn;
 
     private FirebaseDatabase database;
     private DatabaseReference promotionsReference;
@@ -103,6 +117,8 @@ public class NearbyPromotionsDisplayActivity extends AppCompatActivity implement
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        userName = ANONYMOUS;
 
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(this)
@@ -124,6 +140,8 @@ public class NearbyPromotionsDisplayActivity extends AppCompatActivity implement
 
 
         database = FirebaseDatabase.getInstance();
+        firebaseAuth = FirebaseAuth.getInstance();
+
         promotionsReference = database.getReference().child("promotions");
         storeReference = database.getReference().child("stores");
 
@@ -138,16 +156,91 @@ public class NearbyPromotionsDisplayActivity extends AppCompatActivity implement
         promotionListView.setAdapter(promotionAdapter);
 
         Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
-        setSupportActionBar(myToolbar);
+//        setSupportActionBar(myToolbar);
 
         drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-        drawerToggle = new ActionBarDrawerToggle(this,drawerLayout,R.string.open, R.string.closed);
+        drawerToggle = new ActionBarDrawerToggle(this, drawerLayout, R.string.open, R.string.closed);
 
         drawerLayout.addDrawerListener(drawerToggle);
         drawerToggle.syncState();
 
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+//        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
+        NavigationView navigationView = (NavigationView) findViewById(R.id.navigation_view);
+        if (navigationView != null) {
+            navigationView.setNavigationItemSelectedListener(this);
+        }
+
+
+        providersForSignIn = new ArrayList<>();
+
+
+        authStateListener = new FirebaseAuth.AuthStateListener() {
+            @Override
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                FirebaseUser user = firebaseAuth.getCurrentUser();
+                if (user != null) {
+                    //user is signed in
+                    onSingnedInInitialize(user.getDisplayName());
+                } else {
+                    //user is signed out
+
+                    providersForSignIn.add(new AuthUI.IdpConfig.Builder(AuthUI.EMAIL_PROVIDER).build());
+                    providersForSignIn.add(new AuthUI.IdpConfig.Builder(AuthUI.GOOGLE_PROVIDER).build());
+                    onSignedOutcleanup();
+
+                }
+            }
+
+            ;
+        };
+    }
+
+
+    //cand m-am logat
+    private void onSingnedInInitialize(String displayName) {
+        userName = displayName;
+    }
+
+    //cand m-am delogat
+    private void onSignedOutcleanup() {
+        userName = ANONYMOUS;
+    }
+
+
+    @Override
+    public boolean onNavigationItemSelected(MenuItem item) {
+        // Handle navigation view item clicks here.
+        int id = item.getItemId();
+
+        switch(id) {
+            case R.id.signup_menu_item:
+                startActivityForResult(
+                        AuthUI.getInstance()
+                                .createSignInIntentBuilder()
+                                .setIsSmartLockEnabled(false)
+                                .setProviders(providersForSignIn)
+                                .build(),
+                        SIGN_IN_REQUEST);
+                break;
+            case R.id.login_menu_item:
+                startActivityForResult(
+                        AuthUI.getInstance()
+                                .createSignInIntentBuilder()
+                                .setIsSmartLockEnabled(false)
+                                .setProviders(providersForSignIn)
+                                .build(),
+                        SIGN_IN_REQUEST);
+                break;
+
+            case R.id.about_menu_item:
+                break;
+
+            default:
+                break;
+        }
+
+        return true;
     }
 
     @Override
@@ -188,6 +281,18 @@ public class NearbyPromotionsDisplayActivity extends AppCompatActivity implement
 //            mGoogleApiClient.disconnect();
 //        }
 //    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        firebaseAuth.removeAuthStateListener(authStateListener);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        firebaseAuth.addAuthStateListener(authStateListener);
+    }
 
     private void setUpMap() {
         mMap.addMarker(new MarkerOptions().position(new LatLng(0, 0)).title("Marker"));
