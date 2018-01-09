@@ -34,7 +34,7 @@ tools:context=".AddPromotionActivity">
                 android:layout_height="wrap_content"
                 android:text="Location"
                 android:padding="10dp"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="20dp"
                 android:layout_marginLeft="20dp"/>
 
             <TextView
@@ -42,7 +42,7 @@ tools:context=".AddPromotionActivity">
                 android:layout_height="wrap_content"
                 android:text="Description"
                 android:padding="10dp"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="22dp"
                 android:layout_marginLeft="20dp"/>
 
             <TextView
@@ -50,7 +50,7 @@ tools:context=".AddPromotionActivity">
                 android:layout_height="wrap_content"
                 android:text="End Date"
                 android:padding="10dp"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="15dp"
                 android:layout_marginLeft="20dp"/>
 
             <TextView
@@ -58,7 +58,7 @@ tools:context=".AddPromotionActivity">
                 android:layout_height="wrap_content"
                 android:text="Category"
                 android:padding="10dp"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="15dp"
                 android:layout_marginLeft="20dp"/>
 
         </LinearLayout>
@@ -70,14 +70,36 @@ tools:context=".AddPromotionActivity">
             android:orientation="vertical"
             android:layout_weight="2">
 
-            <TextView
-                android:id="@+id/add_promotion_address"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Location"
-                android:padding="10dp"
                 android:layout_marginTop="10dp"
-                android:layout_marginLeft="20dp"/>
+                android:layout_marginLeft="20dp"
+                android:padding="10dp"
+
+                >
+
+                <TextView
+                    android:id="@+id/add_promotion_address"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Location"
+                    android:padding="10dp"
+
+                    />
+
+                <Button
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:background="@drawable/roundedbutton"
+                    android:text="+"
+                    android:textSize="20sp"
+                    android:onClick="getPlaceFromDatePicker"
+                    />
+
+
+
+        </LinearLayout>
 
             <EditText
                 android:id="@+id/add_promotion_description"
@@ -137,8 +159,10 @@ tools:context=".AddPromotionActivity">
         android:text="Add promotion"
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
-        android:layout_margin="20dp"
-        android:onClick="getPlaceFromDatePicker"
+        android:layout_margin="15dp"
+
+        android:onClick="addPromotion"
         />
+
 
 </RelativeLayout>

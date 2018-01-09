@@ -89,7 +89,9 @@ public class AddPromotionActivity extends FragmentActivity implements OnMapReady
         TextView promotionEndDate = (TextView) findViewById(R.id.add_promotion_date_picker);
         promotionEndDate.setTypeface(FontManager.getTypeface(this,FontManager.FONTAWESOME));
 
-        TextView promotionAdress = (TextView) findViewById(R.id.add_promotion_address);
+
+        TextView promotionAddress = (TextView) findViewById(R.id.add_promotion_address);
+        promotionAddress.setTypeface(FontManager.getTypeface(this,FontManager.FONTAWESOME));
 
 
     }
@@ -170,6 +172,8 @@ public class AddPromotionActivity extends FragmentActivity implements OnMapReady
 
     }
 
+
+
     //............................................
     private void setUpMap() {
 
@@ -200,54 +204,7 @@ public class AddPromotionActivity extends FragmentActivity implements OnMapReady
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
         mGoogleApiClient.connect();
-        mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener()
-        {
-            @Override
-            public void onMapClick(LatLng point)
-            {
-                android.util.Log.i("onMapClick", "Horray!");
 
-                //save current location
-                latLng = point;
-
-                double lat = point.latitude;
-                double lng = point.longitude;
-
-                LatLng location = new LatLng(lat, lng);
-                Log.i("marker", lat + " "+ lng);
-                String address;
-                List<Address> addresses = new ArrayList<>();
-                try {
-                    Geocoder geo = new Geocoder(AddPromotionActivity.this.getApplicationContext(), Locale.getDefault());
-                    addresses = geo.getFromLocation(lat,lng, 1);
-                    Log.i("addresses", addresses.isEmpty()+ " ");
-                    if (addresses.isEmpty()) {
-                        Toast.makeText(getApplicationContext(),"Waiting for Location",Toast.LENGTH_SHORT).show();
-                    }
-                    else {
-
-                        if (addresses.size() > 0) {
-                            address = addresses.get(0).getFeatureName()
-                                    + ", " + addresses.get(0).getLocality()
-                                    + ", " + addresses.get(0).getAdminArea()
-                                    + ", " + addresses.get(0).getAddressLine(0)
-                                    + ", " + addresses.get(0).getCountryName();
-                            Toast.makeText(getApplicationContext(), "Address:- " +address, Toast.LENGTH_LONG).show();
-                        }
-
-                        // draws the marker at the currently touched location
-                        marker = mMap.addMarker(new MarkerOptions().position(point).title("Marker")
-                                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA)));
-
-                    }
-                }
-                catch (Exception e) {
-                    e.printStackTrace(); // getFromLocation() may sometimes fail
-                }
-
-
-            }
-        });
 
     }
 
@@ -257,11 +214,15 @@ public class AddPromotionActivity extends FragmentActivity implements OnMapReady
 
         PlacePicker.IntentBuilder builder = new PlacePicker.IntentBuilder();
 
+
         try {
+
             startActivityForResult(builder.build(this), PLACE_PICKER_REQUEST);
-            Log.i("PLace Picker ",PlacePicker.getPlace(getBaseContext(),builder.build(this)).toString());
+
+
+            Log.i("Place Picker ",PlacePicker.getPlace(getBaseContext(),builder.build(this)).toString());
         } catch (Exception e){
-            Log.w("exxception",e.toString());
+            Log.w("exception",e.toString());
         }
 
 
@@ -271,6 +232,15 @@ public class AddPromotionActivity extends FragmentActivity implements OnMapReady
         if (requestCode == PLACE_PICKER_REQUEST) {
             if (resultCode == RESULT_OK) {
                 Place place = PlacePicker.getPlace(data, this);
+
+                LatLng latlng = place.getLatLng();
+                marker = mMap.addMarker(new MarkerOptions().position(latlng).title(place.getName()+ "")
+                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
+
+                TextView promotionAddress2 = (TextView) findViewById(R.id.add_promotion_address);
+
+                promotionAddress2.setText(place.getName());
+
                 String toastMsg = String.format("Place: %s", place.getName());
                 Toast.makeText(this, toastMsg, Toast.LENGTH_LONG).show();
             }
