@@ -15,6 +15,7 @@ import android.location.LocationManager;
 import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
@@ -24,6 +25,7 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -33,6 +35,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.firebase.ui.auth.AuthUI;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -50,6 +53,8 @@ import com.google.android.gms.maps.model.Marker;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -65,21 +70,35 @@ import blog.aida.promotixproject.model.Promotion;
 import blog.aida.promotixproject.model.Store;
 import blog.aida.promotixproject.util.FontManager;
 
-
+import com.google.android.gms.location.places.GeoDataClient;
+import com.google.android.gms.location.places.PlaceDetectionClient;
+import com.google.android.gms.location.places.PlaceLikelihood;
+import com.google.android.gms.location.places.PlaceLikelihoodBufferResponse;
+import com.google.android.gms.location.places.Places;
+import com.firebase.ui.auth.AuthUI;
 
 public class NearbyPromotionsDisplayActivity extends AppCompatActivity implements
         OnMapReadyCallback,
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
-        LocationListener {
+        LocationListener,
+        NavigationView.OnNavigationItemSelectedListener {
 
     private GoogleMap mMap;
     private GoogleApiClient mGoogleApiClient;
     public static final String TAG = NearbyPromotionsDisplayActivity.class.getSimpleName();
 
+    public static final String ANONYMOUS = "anonymousUSER";
     private final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
+    private final static int SIGN_IN_REQUEST = 1000;
+
     private LocationRequest mLocationRequest;
 
+    private String userName;
+
+    private FirebaseAuth firebaseAuth;
+    private FirebaseAuth.AuthStateListener authStateListener;
+    private List<AuthUI.IdpConfig> providersForSignIn;
 
     private FirebaseDatabase database;
     private DatabaseReference promotionsReference;
@@ -101,6 +120,8 @@ public class NearbyPromotionsDisplayActivity extends AppCompatActivity implement
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        userName = ANONYMOUS;
 
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(this)
@@ -124,6 +145,8 @@ public class NearbyPromotionsDisplayActivity extends AppCompatActivity implement
 
 
         database = FirebaseDatabase.getInstance();
+        firebaseAuth = FirebaseAuth.getInstance();
+
         promotionsReference = database.getReference().child("promotions");
         storeReference = database.getReference().child("stores");
 
@@ -145,15 +168,118 @@ public class NearbyPromotionsDisplayActivity extends AppCompatActivity implement
         setSupportActionBar(myToolbar);
 
         drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-        drawerToggle = new ActionBarDrawerToggle(this,drawerLayout,R.string.open, R.string.closed);
+        drawerToggle = new ActionBarDrawerToggle(this, drawerLayout, R.string.open, R.string.closed);
 
         drawerLayout.addDrawerListener(drawerToggle);
         drawerToggle.syncState();
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
+        NavigationView navigationView = (NavigationView) findViewById(R.id.navigation_view);
+        if (navigationView != null) {
+            navigationView.setNavigationItemSelectedListener(this);
+        }
+
+        providersForSignIn = new ArrayList<>();
 
 
+        authStateListener = new FirebaseAuth.AuthStateListener() {
+            @Override
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                FirebaseUser user = firebaseAuth.getCurrentUser();
+                if (user != null) {
+                    //user is signed in
+                    onSingnedInInitialize(user.getDisplayName());
+                } else {
+                    //user is signed out
+
+                    providersForSignIn.add(new AuthUI.IdpConfig.Builder(AuthUI.EMAIL_PROVIDER).build());
+                    providersForSignIn.add(new AuthUI.IdpConfig.Builder(AuthUI.GOOGLE_PROVIDER).build());
+                    onSignedOutcleanup();
+
+                }
+            }
+
+            ;
+        };
+    }
+
+
+    //cand m-am logat
+    private void onSingnedInInitialize(String displayName) {
+        if(displayName != null) {
+            userName = displayName;
+        } else {
+            userName = "Hunter";
+        }
+        setMenuItemsVisibility(true);
+        setHeaderMessage(userName);
+    }
+
+    //cand m-am delogat
+    private void onSignedOutcleanup() {
+        userName = ANONYMOUS;
+        setMenuItemsVisibility(false);
+        setHeaderMessage(ANONYMOUS);
+    }
+
+    private void setHeaderMessage(String displayName) {
+
+        NavigationView navigationView = (NavigationView) findViewById(R.id.navigation_view);
+        TextView headerMenuUserNameView = (TextView) navigationView.getHeaderView(0).findViewById(R.id.username_drawer_header);
+        if(!displayName.equals(ANONYMOUS)) {
+            headerMenuUserNameView.setVisibility(View.VISIBLE);
+            headerMenuUserNameView.setText(displayName);
+        } else {
+            headerMenuUserNameView.setVisibility(View.GONE);
+        }
+    }
+
+    private void setMenuItemsVisibility(boolean loggedIn) {
+        NavigationView navigationView = (NavigationView) findViewById(R.id.navigation_view);
+        Menu menu = navigationView.getMenu();
+
+        if(loggedIn) {
+            menu.findItem(R.id.login_menu_item).setVisible(false);
+            menu.findItem(R.id.logout_menu_item).setVisible(true);
+        } else {
+            menu.findItem(R.id.login_menu_item).setVisible(true);
+            menu.findItem(R.id.logout_menu_item).setVisible(false);
+        }
+    }
+
+    @Override
+    public boolean onNavigationItemSelected(MenuItem item) {
+        // Handle navigation view item clicks here.
+        int id = item.getItemId();
+        drawerLayout.closeDrawers();
+
+        switch(id) {
+            case R.id.login_menu_item:
+                onSignedOutcleanup();
+                startActivityForResult(
+                        AuthUI.getInstance()
+                                .createSignInIntentBuilder()
+                                .setIsSmartLockEnabled(false)
+                                .setProviders(providersForSignIn)
+                                .build(),
+                        SIGN_IN_REQUEST);
+                break;
+
+            case R.id.logout_menu_item:
+                AuthUI.getInstance().signOut(this);
+                onSignedOutcleanup();
+                Toast.makeText(this, "You have been signed out", Toast.LENGTH_SHORT);
+                return true;
+
+            case R.id.about_menu_item:
+                break;
+
+            default:
+                return true;
+        }
+
+        return true;
     }
 
     @Override
@@ -194,6 +320,18 @@ public class NearbyPromotionsDisplayActivity extends AppCompatActivity implement
 //            mGoogleApiClient.disconnect();
 //        }
 //    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        firebaseAuth.removeAuthStateListener(authStateListener);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        firebaseAuth.addAuthStateListener(authStateListener);
+    }
 
     private void setUpMap() {
         mMap.addMarker(new MarkerOptions().position(new LatLng(0, 0)).title("Marker"));
@@ -327,7 +465,11 @@ public class NearbyPromotionsDisplayActivity extends AppCompatActivity implement
         }
         @SuppressLint("MissingPermission") Location location = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
         if (location == null) {
-            LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, (com.google.android.gms.location.LocationListener) this);
+            try{
+                LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, (com.google.android.gms.location.LocationListener) this);
+            } catch(Exception e) {
+                Toast.makeText(this,R.string.location_service_error, Toast.LENGTH_SHORT);
+            }
         }
         else {
             handleNewLocation(location);

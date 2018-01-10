@@ -16,4 +16,5 @@
         <item>Cars</item>
         <item>Real Estate</item>
     </string-array>
+    <string name="location_service_error">Error loading location services</string>
 </resources>
