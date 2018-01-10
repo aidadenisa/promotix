@@ -41,11 +41,9 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 
 import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
@@ -59,8 +57,6 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -69,11 +65,7 @@ import blog.aida.promotixproject.model.Promotion;
 import blog.aida.promotixproject.model.Store;
 import blog.aida.promotixproject.util.FontManager;
 
-import com.google.android.gms.location.places.GeoDataClient;
-import com.google.android.gms.location.places.PlaceDetectionClient;
-import com.google.android.gms.location.places.PlaceLikelihood;
-import com.google.android.gms.location.places.PlaceLikelihoodBufferResponse;
-import com.google.android.gms.location.places.Places;
+
 
 public class NearbyPromotionsDisplayActivity extends AppCompatActivity implements
         OnMapReadyCallback,
@@ -103,6 +95,8 @@ public class NearbyPromotionsDisplayActivity extends AppCompatActivity implement
 
     private DrawerLayout drawerLayout;
     private ActionBarDrawerToggle drawerToggle;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -145,6 +139,8 @@ public class NearbyPromotionsDisplayActivity extends AppCompatActivity implement
 
         Button addPromotionButton = (Button) findViewById(R.id.add_promotion_button);
         addPromotionButton.setTypeface(FontManager.getTypeface(this,FontManager.FONTAWESOME));
+
+
         Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
         setSupportActionBar(myToolbar);
 
@@ -155,6 +151,8 @@ public class NearbyPromotionsDisplayActivity extends AppCompatActivity implement
         drawerToggle.syncState();
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+
 
     }
 

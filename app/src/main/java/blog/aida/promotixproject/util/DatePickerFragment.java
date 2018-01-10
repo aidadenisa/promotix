@@ -20,6 +20,9 @@ import blog.aida.promotixproject.R;
 public class DatePickerFragment extends DialogFragment
         implements DatePickerDialog.OnDateSetListener {
 
+    private static int year;
+    private static int month;
+    private static int day;
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         // Use the current date as the default date in the picker
@@ -40,6 +43,15 @@ public class DatePickerFragment extends DialogFragment
         // Do something with the date chosen by the user
 
         TextView dateChosenView = (TextView) getActivity().findViewById(R.id.add_promotion_show_date);
-        dateChosenView.setText(day + "." + (month + 1) + "." + day);
+        this.day=day;
+        this.month=month;
+        this.year = year;
+        dateChosenView.setText(day + "-" + (month + 1) + "-" + year);
     }
+
+    public static int getDay(){return day;}
+
+    public static int getMonth(){return month;}
+
+    public static int getYear(){return year;}
 }

@@ -4,9 +4,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:text="http://schemas.android.com/apk/res-auto"
-    tools:context=".NearbyPromotionsDisplayActivity">
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".NearbyPromotionsDisplayActivity"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:focusableInTouchMode="true">
 
 
@@ -21,6 +20,12 @@
         tools:context="blog.aida.promotixproject.NearbyPromotionsDisplayActivity"/>
 
 
+    <fragment
+        android:id="@+id/place_autocomplete_fragment"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:name="com.google.android.gms.location.places.ui.PlaceAutocompleteFragment"
+        />
     <SearchView
         android:id="@+id/search_input"
         android:layout_width="match_parent"
@@ -63,7 +68,8 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:orientation="horizontal">
 
             <android.support.v7.widget.Toolbar android:id="@+id/my_toolbar"
                 android:layout_width="match_parent"

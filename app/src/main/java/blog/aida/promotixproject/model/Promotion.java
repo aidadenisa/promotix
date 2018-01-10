@@ -13,13 +13,12 @@ public class Promotion {
 
     private int badVotes;
     private int goodVotes;
-    private User author;
+    private String author;
     private String storeId;
     private String name;
     private String cuantum;
-    private Date promoBeginDate;
-    private Date promoEndDate;
-    private int category;
+    private long promoEndDate;
+    private String category;
 
     public int getBadVotes() {
         return badVotes;
@@ -37,11 +36,11 @@ public class Promotion {
         this.goodVotes = goodVotes;
     }
 
-    public User getAuthor() {
+    public String getAuthor() {
         return author;
     }
 
-    public void setAuthor(User author) {
+    public void setAuthor(String author) {
         this.author = author;
     }
 
@@ -61,27 +60,19 @@ public class Promotion {
         this.name = name;
     }
 
-    public Date getPromoBeginDate() {
-        return promoBeginDate;
-    }
-
-    public void setPromoBeginDate(Date promoBeginDate) {
-        this.promoBeginDate = promoBeginDate;
-    }
-
-    public Date getPromoEndDate() {
+    public long getPromoEndDate() {
         return promoEndDate;
     }
 
-    public void setPromoEndDate(Date promoEndDate) {
+    public void setPromoEndDate(long promoEndDate) {
         this.promoEndDate = promoEndDate;
     }
 
-    public int getCategory() {
+    public String getCategory() {
         return category;
     }
 
-    public void setCategory(int category) {
+    public void setCategory(String category) {
         this.category = category;
     }
 

@@ -16,7 +16,7 @@ tools:context=".AddPromotionActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="300dp"
+        android:layout_height="350dp"
         android:layout_alignParentBottom="true"
         android:background="#ffffff"
         android:orientation="horizontal">
@@ -26,40 +26,48 @@ tools:context=".AddPromotionActivity">
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_alignParentBottom="true"
-            android:orientation="vertical"
-            android:layout_weight="3">
+            android:layout_weight="3"
+            android:orientation="vertical">
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Location"
-                android:padding="10dp"
+                android:layout_marginLeft="20dp"
                 android:layout_marginTop="20dp"
-                android:layout_marginLeft="20dp"/>
+                android:padding="10dp"
+                android:text="Location" />
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Description"
-                android:padding="10dp"
+                android:layout_marginLeft="20dp"
                 android:layout_marginTop="22dp"
-                android:layout_marginLeft="20dp"/>
+                android:padding="10dp"
+                android:text="Description" />
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="End Date"
+                android:layout_marginLeft="20dp"
+                android:layout_marginTop="22dp"
                 android:padding="10dp"
-                android:layout_marginTop="15dp"
-                android:layout_marginLeft="20dp"/>
+                android:text="Cuantum" />
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Category"
-                android:padding="10dp"
+                android:layout_marginLeft="20dp"
                 android:layout_marginTop="15dp"
-                android:layout_marginLeft="20dp"/>
+                android:padding="10dp"
+                android:text="End Date" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="20dp"
+                android:layout_marginTop="15dp"
+                android:padding="10dp"
+                android:text="Category" />
 
         </LinearLayout>
 
@@ -67,14 +75,14 @@ tools:context=".AddPromotionActivity">
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_alignParentBottom="true"
-            android:orientation="vertical"
-            android:layout_weight="2">
+            android:layout_weight="2"
+            android:orientation="vertical">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
                 android:layout_marginLeft="20dp"
+                android:layout_marginTop="10dp"
                 android:padding="10dp"
 
                 >
@@ -83,8 +91,8 @@ tools:context=".AddPromotionActivity">
                     android:id="@+id/add_promotion_address"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Location"
                     android:padding="10dp"
+                    android:text="Location"
 
                     />
 
@@ -92,33 +100,40 @@ tools:context=".AddPromotionActivity">
                     android:layout_width="30dp"
                     android:layout_height="30dp"
                     android:background="@drawable/roundedbutton"
-                    android:text="+"
-                    android:textSize="20sp"
                     android:onClick="getPlaceFromDatePicker"
-                    />
+                    android:text="+"
+                    android:textSize="20sp" />
 
 
-
-        </LinearLayout>
+            </LinearLayout>
 
             <EditText
                 android:id="@+id/add_promotion_description"
-                android:hint="Promotie la pantofi"
-                android:inputType="textShortMessage"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="10dp"
+                android:layout_marginLeft="20dp"
                 android:layout_marginTop="10dp"
-                android:layout_marginLeft="20dp"/>
+                android:hint="Promotie la pantofi"
+                android:inputType="textShortMessage"
+                android:padding="10dp" />
+
+            <EditText
+                android:id="@+id/add_promotion_cuantum"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="20dp"
+                android:layout_marginTop="10dp"
+                android:hint="ex: 50%, 1+1"
+                android:inputType="textShortMessage"
+                android:padding="10dp" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
                 android:layout_marginLeft="20dp"
-                android:padding="10dp"
+                android:layout_marginTop="10dp"
                 android:onClick="showDatePickerDialog"
-                >
+                android:padding="10dp">
 
                 <TextView
                     android:id="@+id/add_promotion_date_picker"
@@ -133,8 +148,7 @@ tools:context=".AddPromotionActivity">
                     android:id="@+id/add_promotion_show_date"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="20dp"
-                    />
+                    android:layout_marginLeft="20dp" />
 
             </LinearLayout>
 
@@ -143,10 +157,11 @@ tools:context=".AddPromotionActivity">
                 android:id="@+id/add_promotion_category_spinner"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="10dp"
-                android:layout_marginTop="10dp"
                 android:layout_marginLeft="20dp"
-                android:entries="@array/promotions_categories"/>
+                android:layout_marginTop="10dp"
+                android:entries="@array/promotions_categories"
+                android:padding="10dp" />
+
 
 
         </LinearLayout>
@@ -160,8 +175,8 @@ tools:context=".AddPromotionActivity">
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         android:layout_margin="15dp"
-
-        android:onClick="addPromotion"
+        android:id="@+id/add_promo_button"
+        android:onClick="addPromo"
         />
 
 

@@ -1,6 +1,13 @@
 package blog.aida.promotixproject;
 
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import android.annotation.SuppressLint;
+import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Canvas;
@@ -13,8 +20,13 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
+import android.widget.DatePicker;
+import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -34,27 +46,62 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.firebase.database.FirebaseDatabase;
+
 import android.location.Geocoder;
 import android.widget.Toast;
 
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+import blog.aida.promotixproject.model.Promotion;
+import blog.aida.promotixproject.model.Store;
+import blog.aida.promotixproject.model.User;
 import blog.aida.promotixproject.util.DatePickerFragment;
 import blog.aida.promotixproject.util.FontManager;
 
 public class AddPromotionActivity extends FragmentActivity implements OnMapReadyCallback,
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
-        LocationListener {
+        LocationListener{
 
 
     private GoogleMap mMap;
     private GoogleApiClient mGoogleApiClient;
     public static final String TAG = NearbyPromotionsDisplayActivity.class.getSimpleName();
 
+    private FirebaseDatabase database;
+    private DatabaseReference promotionsReference;
+    private DatabaseReference storeReference;
+    private ChildEventListener databasePromotionsEventListener;
+    private ChildEventListener databaseStoresEventListener;
+
+    //store
+    private String storeAddress;
+    private String storeName;
+    private double storeLat;
+    private double storeLng;
+    private String storeId;
+    private String storeCategories;
+
+    //promotion
+    private int promotionBadVotes;
+    private int promotionGoodVotes;
+    private User promotionAuthor;
+    private String promotionDescription;
+    private String promotionCuantum;
+    private long promotionEndDate;
+    private String promotionCategory;
+    private String promotionUser;
+
+
+    private ArrayList<Store> stores = new ArrayList<Store>();
     private final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
     private LocationRequest mLocationRequest;
     private LatLng latLng;
@@ -66,6 +113,13 @@ public class AddPromotionActivity extends FragmentActivity implements OnMapReady
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_promotion);
+
+        database = FirebaseDatabase.getInstance();
+        promotionsReference = database.getReference().child("promotions");
+        storeReference = database.getReference().child("stores");
+
+
+
 
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(this)
@@ -91,12 +145,60 @@ public class AddPromotionActivity extends FragmentActivity implements OnMapReady
 
 
         TextView promotionAddress = (TextView) findViewById(R.id.add_promotion_address);
-        promotionAddress.setTypeface(FontManager.getTypeface(this,FontManager.FONTAWESOME));
+        //promotionAddress.setTypeface(FontManager.getTypeface(this,FontManager.FONTAWESOME));
 
 
     }
     //........................
 
+
+    public void addPromo(View view) {
+        Store store = new Store();
+        Promotion promotion = new Promotion();
+
+        Spinner categorySpinner = (Spinner) findViewById(R.id.add_promotion_category_spinner);
+        int selectedCategoryId = categorySpinner.getSelectedItemPosition();
+
+       // Log.i("123cat", selectedCategoryId + "");
+      /*  String category = store.getCategories();
+        category="000000111";
+        //
+        getCategory(selectedCategoryId, category);
+        */
+        //store
+        store.setAddress(storeAddress);
+        store.setLat(storeLat);
+        store.setLng(storeLng);
+        store.setName(storeName);
+        store.setId(storeId);
+       // store.setCategories(storeCategories);
+
+        //promotion
+        EditText description = (EditText) findViewById(R.id.add_promotion_description);
+        promotionDescription = description.getText().toString();
+
+
+        EditText cuantum = (EditText) findViewById(R.id.add_promotion_cuantum);
+        promotionCuantum = cuantum.getText().toString();
+
+
+
+
+        promotion.setName(promotionDescription);
+        promotion.setAuthor(promotionUser);
+        promotion.setStoreId(storeId);
+        promotion.setPromoEndDate(promotionEndDate);
+        promotion.setCuantum(promotionCuantum);
+        //promotion.setCategory(promotionCategory);
+        promotion.setPromoEndDate(promotionEndDate);
+
+
+        storeReference.push().setValue(store);
+        promotionsReference.push().setValue(promotion);
+
+
+        Log.i("DB push", "A pus");
+    }
 
     private void setUpMapIfNeeded() {
         // Do a null check to confirm that we have not already instantiated the map.
@@ -160,17 +262,52 @@ public class AddPromotionActivity extends FragmentActivity implements OnMapReady
 //-----------------
 
 
+
+
     public void showDatePickerDialog(View v) {
-        DialogFragment newFragment = new DatePickerFragment();
+        final DialogFragment newFragment = new DatePickerFragment();
         newFragment.show(getSupportFragmentManager(), "datePicker");
+
+        final TextView dateTextView = (TextView) findViewById(R.id.add_promotion_show_date);
+        TextWatcher watch = new TextWatcher()
+        {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+                String endDate = dateTextView.getText().toString();
+
+
+                DateFormat df = new SimpleDateFormat("dd-mm-yyyy");
+                try {
+                    Date parseDate;
+                    parseDate = df.parse(endDate);
+                    promotionEndDate = parseDate.getTime();
+
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+
+
+            }
+        };
+        dateTextView.addTextChangedListener(watch);
+
+
+
     }
 
-    public void addPromotion(View view) {
-
-        Spinner categorySpinner = (Spinner) findViewById(R.id.add_promotion_category_spinner);
-        int selectedCategoryId = categorySpinner.getSelectedItemPosition();
-
-    }
 
 
 
@@ -213,13 +350,9 @@ public class AddPromotionActivity extends FragmentActivity implements OnMapReady
     public void getPlaceFromDatePicker(View v) {
 
         PlacePicker.IntentBuilder builder = new PlacePicker.IntentBuilder();
-
-
         try {
 
             startActivityForResult(builder.build(this), PLACE_PICKER_REQUEST);
-
-
             Log.i("Place Picker ",PlacePicker.getPlace(getBaseContext(),builder.build(this)).toString());
         } catch (Exception e){
             Log.w("exception",e.toString());
@@ -228,21 +361,43 @@ public class AddPromotionActivity extends FragmentActivity implements OnMapReady
 
     }
 
+    public void getCategory(int position, String category){
+
+        char x = category.charAt(position);
+        if (!(x>'0')){
+            StringBuilder cat = new StringBuilder(category);
+            cat.setCharAt(position, '1');
+        }
+        Log.i("categ", category+"000" );
+
+    }
+
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+
         if (requestCode == PLACE_PICKER_REQUEST) {
             if (resultCode == RESULT_OK) {
                 Place place = PlacePicker.getPlace(data, this);
-
                 LatLng latlng = place.getLatLng();
+                if (marker!=null) {
+                    marker.remove();
+                    marker = null;
+                }
                 marker = mMap.addMarker(new MarkerOptions().position(latlng).title(place.getName()+ "")
                         .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
 
                 TextView promotionAddress2 = (TextView) findViewById(R.id.add_promotion_address);
-
                 promotionAddress2.setText(place.getName());
-
                 String toastMsg = String.format("Place: %s", place.getName());
                 Toast.makeText(this, toastMsg, Toast.LENGTH_LONG).show();
+
+                storeAddress = place.getAddress().toString();
+                storeName = place.getName().toString();
+                storeId = place.getId();
+                LatLng latitudexlongitude = place.getLatLng();
+                storeLat = latitudexlongitude.latitude;
+                storeLng = latitudexlongitude.longitude;
+
+
             }
         }
     }
