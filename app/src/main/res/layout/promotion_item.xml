@@ -45,23 +45,26 @@
 
             <TextView
                 android:id="@+id/promotion_checked_icon"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/fa_check_circle_o"/>
+                android:layout_width="15dp"
+                android:layout_height="15dp"
+                android:text="@string/fa_check_circle_o" />
+
             <TextView
                 android:id="@+id/promotion_checked_votes"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="30dp"
+                android:layout_height="15dp"
                 android:text="90" />
+
             <TextView
                 android:id="@+id/promotion_fake_icon"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/fa_times_circle_o"/>
+                android:layout_width="15dp"
+                android:layout_height="15dp"
+                android:text="@string/fa_times_circle_o" />
+
             <TextView
                 android:id="@+id/promotion_fake_votes"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="30dp"
+                android:layout_height="15dp"
                 android:text="90" />
 
 
@@ -72,19 +75,18 @@
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="match_parent"
-        android:background="@color/colorAccent"
-        android:layout_weight="2">
+        android:layout_weight="2"
+        android:background="@color/colorAccent">
 
         <TextView
             android:id="@+id/promotion_cuantum"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:text="50%"
-            />
+            android:layout_gravity="center"
+            android:text="50%" />
 
 
     </LinearLayout>
-
 
 
 </LinearLayout>

@@ -1,6 +1,9 @@
 package blog.aida.promotixproject;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
+import com.firebase.ui.auth.AuthUI;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -16,6 +19,7 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
@@ -23,6 +27,7 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
 import android.widget.DatePicker;
@@ -66,6 +71,8 @@ import blog.aida.promotixproject.model.User;
 import blog.aida.promotixproject.util.DatePickerFragment;
 import blog.aida.promotixproject.util.FontManager;
 
+import static blog.aida.promotixproject.NearbyPromotionsDisplayActivity.ANONYMOUS;
+
 public class AddPromotionActivity extends FragmentActivity implements OnMapReadyCallback,
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
@@ -101,6 +108,9 @@ public class AddPromotionActivity extends FragmentActivity implements OnMapReady
     private String promotionUser;
 
 
+    private String userName;
+
+
     private ArrayList<Store> stores = new ArrayList<Store>();
     private final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
     private LocationRequest mLocationRequest;
@@ -108,9 +118,14 @@ public class AddPromotionActivity extends FragmentActivity implements OnMapReady
     private Marker marker;
     Geocoder geocoder;
 
+    private FirebaseAuth firebaseAuth;
+    private FirebaseAuth.AuthStateListener authStateListener;
+    private List<AuthUI.IdpConfig> providersForSignIn;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        userName = ANONYMOUS;
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_promotion);
 
@@ -138,19 +153,78 @@ public class AddPromotionActivity extends FragmentActivity implements OnMapReady
         mapFragment.getMapAsync(this);
         geocoder = new Geocoder(this, Locale.getDefault());
 
+        firebaseAuth = FirebaseAuth.getInstance();
+
         setUpMapIfNeeded();
 
         TextView promotionEndDate = (TextView) findViewById(R.id.add_promotion_date_picker);
         promotionEndDate.setTypeface(FontManager.getTypeface(this,FontManager.FONTAWESOME));
 
+        authStateListener = new FirebaseAuth.AuthStateListener() {
+            @Override
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                FirebaseUser user = firebaseAuth.getCurrentUser();
+                if (user != null) {
+                    //user is signed in
+                    onSingnedInInitialize(user.getDisplayName());
+                } else {
+                    //user is signed out
 
-        TextView promotionAddress = (TextView) findViewById(R.id.add_promotion_address);
-        //promotionAddress.setTypeface(FontManager.getTypeface(this,FontManager.FONTAWESOME));
+                    providersForSignIn.add(new AuthUI.IdpConfig.Builder(AuthUI.EMAIL_PROVIDER).build());
+                    providersForSignIn.add(new AuthUI.IdpConfig.Builder(AuthUI.GOOGLE_PROVIDER).build());
+                    onSignedOutcleanup();
+
+                }
+            }
+
+            ;
+        };
 
 
     }
     //........................
 
+
+    private void onSingnedInInitialize(String displayName) {
+        if(displayName != null) {
+            userName = displayName;
+        } else {
+            userName = "Hunter";
+        }
+        setMenuItemsVisibility(true);
+        setHeaderMessage(userName);
+    }
+
+    private void setHeaderMessage(String displayName) {
+
+        NavigationView navigationView = (NavigationView) findViewById(R.id.navigation_view);
+        TextView headerMenuUserNameView = (TextView) navigationView.getHeaderView(0).findViewById(R.id.username_drawer_header);
+        if(!displayName.equals(ANONYMOUS)) {
+            headerMenuUserNameView.setVisibility(View.VISIBLE);
+            headerMenuUserNameView.setText(displayName);
+        } else {
+            headerMenuUserNameView.setVisibility(View.GONE);
+        }
+    }
+
+    private void setMenuItemsVisibility(boolean loggedIn) {
+        NavigationView navigationView = (NavigationView) findViewById(R.id.navigation_view);
+        Menu menu = navigationView.getMenu();
+
+        if(loggedIn) {
+            menu.findItem(R.id.login_menu_item).setVisible(false);
+            menu.findItem(R.id.logout_menu_item).setVisible(true);
+        } else {
+            menu.findItem(R.id.login_menu_item).setVisible(true);
+            menu.findItem(R.id.logout_menu_item).setVisible(false);
+        }
+    }
+
+    private void onSignedOutcleanup() {
+        userName = ANONYMOUS;
+        setMenuItemsVisibility(false);
+        setHeaderMessage(ANONYMOUS);
+    }
 
     public void addPromo(View view) {
         Store store = new Store();
@@ -183,6 +257,7 @@ public class AddPromotionActivity extends FragmentActivity implements OnMapReady
 
 
 
+        promotionUser=firebaseAuth.getCurrentUser().getUid();
 
         promotion.setName(promotionDescription);
         promotion.setAuthor(promotionUser);

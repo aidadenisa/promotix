@@ -508,8 +508,14 @@ public class NearbyPromotionsDisplayActivity extends AppCompatActivity implement
     }
 
     public void openAddPromotionActivity(View view) {
-        Intent goToAddPromotionActivity = new Intent(this, AddPromotionActivity.class);
-        startActivity(goToAddPromotionActivity);
+        if (userName!=null && !userName.equals(ANONYMOUS)) {
+            Intent goToAddPromotionActivity = new Intent(this, AddPromotionActivity.class);
+            startActivity(goToAddPromotionActivity);
+        }
+        else{
+            Toast.makeText(this, "You have to login to add a promotion.",Toast.LENGTH_LONG).show();
+
+        }
     }
 
     @Override

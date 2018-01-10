@@ -59,15 +59,7 @@
         android:divider="@android:color/transparent"
         android:transcriptMode="alwaysScroll"
         tools:listitem="@layout/promotion_item" />
-        <ListView
-            android:id="@+id/promotions_list_view"
-            android:layout_width="match_parent"
-            android:layout_height="250dp"
-            android:background="#ffffff"
-            android:layout_alignParentBottom="true"
-            android:divider="@android:color/transparent"
-            android:transcriptMode="alwaysScroll"
-            tools:listitem="@layout/promotion_item" />
+
 
         <android.support.v7.widget.Toolbar android:id="@+id/my_toolbar"
             android:layout_width="match_parent"
