@@ -199,14 +199,32 @@ public class NearbyPromotionsDisplayActivity extends AppCompatActivity implement
 
     //cand m-am logat
     private void onSingnedInInitialize(String displayName) {
-        userName = displayName;
+        if(displayName != null) {
+            userName = displayName;
+        } else {
+            userName = "Hunter";
+        }
         setMenuItemsVisibility(true);
+        setHeaderMessage(userName);
     }
 
     //cand m-am delogat
     private void onSignedOutcleanup() {
         userName = ANONYMOUS;
         setMenuItemsVisibility(false);
+        setHeaderMessage(ANONYMOUS);
+    }
+
+    private void setHeaderMessage(String displayName) {
+
+        NavigationView navigationView = (NavigationView) findViewById(R.id.navigation_view);
+        TextView headerMenuUserNameView = (TextView) navigationView.getHeaderView(0).findViewById(R.id.username_drawer_header);
+        if(!displayName.equals(ANONYMOUS)) {
+            headerMenuUserNameView.setVisibility(View.VISIBLE);
+            headerMenuUserNameView.setText(displayName);
+        } else {
+            headerMenuUserNameView.setVisibility(View.GONE);
+        }
     }
 
     private void setMenuItemsVisibility(boolean loggedIn) {
