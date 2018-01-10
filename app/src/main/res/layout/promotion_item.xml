@@ -44,6 +44,13 @@
             android:textAlignment="viewEnd">
 
             <TextView
+                android:id="@+id/delete_item_icon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/fa_trash_o"
+                android:visibility="visible"/>
+
+            <TextView
                 android:id="@+id/promotion_checked_icon"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

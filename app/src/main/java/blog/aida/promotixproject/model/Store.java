@@ -10,7 +10,7 @@ public class Store {
 
     private String name;
     private String address;
-    private int categories;
+    private String categories;
     //private String latlng;
     private double lat;
     private double lng;
@@ -32,11 +32,11 @@ public class Store {
         this.address = address;
     }
 
-    public int getCategories() {
+    public String getCategories() {
         return categories;
     }
 
-    public void setCategories(int categories) {
+    public void setCategories(String categories) {
         this.categories = categories;
     }
 

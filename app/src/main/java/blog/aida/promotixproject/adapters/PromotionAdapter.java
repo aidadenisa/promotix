@@ -62,10 +62,11 @@ public class PromotionAdapter extends ArrayAdapter<Promotion> {
     }
 
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
+    public View getView(final int position, View convertView, ViewGroup parent) {
         if (convertView == null) {
             convertView = ((Activity) getContext()).getLayoutInflater().inflate(R.layout.promotion_item, parent, false);
         }
+
 
         TextView promotionName = (TextView) convertView.findViewById(R.id.promotion_name);
         TextView promotionShopName = (TextView) convertView.findViewById(R.id.promotion_shop_name);
@@ -74,15 +75,34 @@ public class PromotionAdapter extends ArrayAdapter<Promotion> {
         TextView promotionCheckedIcon = (TextView) convertView.findViewById(R.id.promotion_checked_icon);
         TextView promotionFakeVotes = (TextView) convertView.findViewById(R.id.promotion_fake_votes);
         TextView promotionFakeIcon = (TextView) convertView.findViewById(R.id.promotion_fake_icon);
+        TextView deleteItemIcon = (TextView) convertView.findViewById(R.id.delete_item_icon);
 
         promotionCheckedIcon.setTypeface(FontManager.getTypeface(getContext(),FontManager.FONTAWESOME));
         promotionFakeIcon.setTypeface(FontManager.getTypeface(getContext(),FontManager.FONTAWESOME));
+        deleteItemIcon.setTypeface(FontManager.getTypeface(getContext(),FontManager.FONTAWESOME));
 
         Promotion promotion = getItem(position);
+
+        deleteItemIcon.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            PromotionAdapter.this.remove(getItem(position));
+                            PromotionAdapter.this.notifyDataSetChanged();
+
+                        }
+                    });
 
         DatabaseReference storeReference = database.getReference().child("stores").child(promotion.getStoreId());
 
         attachDatabaseReadListener(this, storeReference);
+
+        deleteItemIcon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                PromotionAdapter.this.remove(getItem(position));
+                PromotionAdapter.this.notifyDataSetChanged();
+            }
+        });
 
         if(store != null) {
             promotionShopName.setText(store.getName());
