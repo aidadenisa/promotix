@@ -70,6 +70,7 @@ import java.util.List;
 import blog.aida.promotixproject.adapters.PromotionAdapter;
 import blog.aida.promotixproject.model.Promotion;
 import blog.aida.promotixproject.model.Store;
+import blog.aida.promotixproject.util.FontManager;
 
 import com.google.android.gms.location.places.GeoDataClient;
 import com.google.android.gms.location.places.PlaceDetectionClient;
@@ -96,6 +97,8 @@ public class NearbyPromotionsDisplayActivity extends AppCompatActivity implement
     private LocationRequest mLocationRequest;
 
     private String userName;
+    private int badVotes;
+    private int goodVotes;
 
     private FirebaseAuth firebaseAuth;
     private FirebaseAuth.AuthStateListener authStateListener;
@@ -173,8 +176,12 @@ public class NearbyPromotionsDisplayActivity extends AppCompatActivity implement
             navigationView.setNavigationItemSelectedListener(this);
         }
 
-        providersForSignIn = new ArrayList<>();
+        TextView promotionCheckedVotes = (TextView) findViewById(R.id.promotion_checked_votes);
+        TextView promotionCheckedIcon = (TextView) findViewById(R.id.promotion_checked_icon);
+        TextView promotionFakeVotes = (TextView) findViewById(R.id.promotion_fake_votes);
+        TextView promotionFakeIcon = (TextView) findViewById(R.id.promotion_fake_icon);
 
+        providersForSignIn = new ArrayList<>();
 
         authStateListener = new FirebaseAuth.AuthStateListener() {
             @Override
@@ -207,6 +214,8 @@ public class NearbyPromotionsDisplayActivity extends AppCompatActivity implement
         }
         setMenuItemsVisibility(true);
         setHeaderMessage(userName);
+        promotionAdapter.setUserLoggedIn(true);
+        promotionAdapter.setLoggedInUserId(firebaseAuth.getUid());
     }
 
     //cand m-am delogat
