@@ -1,9 +1,10 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-xmlns:tools="http://schemas.android.com/tools"
-android:layout_width="match_parent"
-android:layout_height="match_parent"
-xmlns:text="http://schemas.android.com/apk/res-auto"
-tools:context=".AddPromotionActivity">
+    xmlns:text="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:visibility="visible"
+    tools:context=".AddPromotionActivity">
 
     <fragment xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:map="http://schemas.android.com/apk/res-auto"
@@ -163,21 +164,20 @@ tools:context=".AddPromotionActivity">
                 android:padding="10dp" />
 
 
-
         </LinearLayout>
 
 
     </LinearLayout>
+
     <Button
+        android:id="@+id/add_promo_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Add promotion"
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         android:layout_margin="15dp"
-        android:id="@+id/add_promo_button"
         android:onClick="addPromo"
-        />
+        android:text="Add promotion" />
 
 
 </RelativeLayout>
