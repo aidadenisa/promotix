@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.location.Address;
@@ -95,6 +96,8 @@ public class NearbyPromotionsDisplayActivity extends AppCompatActivity implement
     private LocationRequest mLocationRequest;
 
     private String userName;
+    private int badVotes;
+    private int goodVotes;
 
     private FirebaseAuth firebaseAuth;
     private FirebaseAuth.AuthStateListener authStateListener;
@@ -180,8 +183,12 @@ public class NearbyPromotionsDisplayActivity extends AppCompatActivity implement
             navigationView.setNavigationItemSelectedListener(this);
         }
 
-        providersForSignIn = new ArrayList<>();
+        TextView promotionCheckedVotes = (TextView) findViewById(R.id.promotion_checked_votes);
+        TextView promotionCheckedIcon = (TextView) findViewById(R.id.promotion_checked_icon);
+        TextView promotionFakeVotes = (TextView) findViewById(R.id.promotion_fake_votes);
+        TextView promotionFakeIcon = (TextView) findViewById(R.id.promotion_fake_icon);
 
+        providersForSignIn = new ArrayList<>();
 
         authStateListener = new FirebaseAuth.AuthStateListener() {
             @Override
@@ -214,6 +221,8 @@ public class NearbyPromotionsDisplayActivity extends AppCompatActivity implement
         }
         setMenuItemsVisibility(true);
         setHeaderMessage(userName);
+        promotionAdapter.setUserLoggedIn(true);
+        promotionAdapter.setLoggedInUserId(firebaseAuth.getUid());
     }
 
     //cand m-am delogat
@@ -242,10 +251,17 @@ public class NearbyPromotionsDisplayActivity extends AppCompatActivity implement
         if(loggedIn) {
             menu.findItem(R.id.login_menu_item).setVisible(false);
             menu.findItem(R.id.logout_menu_item).setVisible(true);
+            menu.findItem(R.id.user_promotions_menu_item).setVisible(true);
         } else {
             menu.findItem(R.id.login_menu_item).setVisible(true);
             menu.findItem(R.id.logout_menu_item).setVisible(false);
+            menu.findItem(R.id.user_promotions_menu_item).setVisible(false);
         }
+    }
+
+    public void openViewMyPromotionsActivity() {
+        Intent goToViewMyPromotionsActivity = new Intent(this, UserPromotionsActivity.class);
+        startActivity(goToViewMyPromotionsActivity);
     }
 
     @Override
@@ -271,6 +287,10 @@ public class NearbyPromotionsDisplayActivity extends AppCompatActivity implement
                 onSignedOutcleanup();
                 Toast.makeText(this, "You have been signed out", Toast.LENGTH_SHORT);
                 return true;
+
+            case R.id.user_promotions_menu_item:
+
+                openViewMyPromotionsActivity();
 
             case R.id.about_menu_item:
                 break;
@@ -468,7 +488,8 @@ public class NearbyPromotionsDisplayActivity extends AppCompatActivity implement
             try{
                 LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, (com.google.android.gms.location.LocationListener) this);
             } catch(Exception e) {
-                Toast.makeText(this,R.string.location_service_error, Toast.LENGTH_SHORT);
+                Toast.makeText(this,R.string.location_service_error, Toast.LENGTH_SHORT).show();
+
             }
         }
         else {
