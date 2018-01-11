@@ -80,6 +80,7 @@ import com.firebase.ui.auth.AuthUI;
 
 public class NearbyPromotionsDisplayActivity extends AppCompatActivity implements
         OnMapReadyCallback,
+        GoogleMap.OnMarkerClickListener,
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
         LocationListener,
@@ -109,6 +110,7 @@ public class NearbyPromotionsDisplayActivity extends AppCompatActivity implement
 
     private ListView promotionListView;
     private PromotionAdapter promotionAdapter;
+    private PromotionAdapter promotionAdapter2;
 
     private ChildEventListener databasePromotionsEventListener;
     private ChildEventListener databaseStoresEventListener;
@@ -117,6 +119,10 @@ public class NearbyPromotionsDisplayActivity extends AppCompatActivity implement
 
     private DrawerLayout drawerLayout;
     private ActionBarDrawerToggle drawerToggle;
+
+    private ArrayList<Promotion> pPromotions = new ArrayList<Promotion>();
+    private ArrayList<Store> sStores = new ArrayList<Store>();
+    private ArrayList<Marker> markers = new ArrayList<Marker>();
 
 
 
@@ -183,10 +189,6 @@ public class NearbyPromotionsDisplayActivity extends AppCompatActivity implement
             navigationView.setNavigationItemSelectedListener(this);
         }
 
-        TextView promotionCheckedVotes = (TextView) findViewById(R.id.promotion_checked_votes);
-        TextView promotionCheckedIcon = (TextView) findViewById(R.id.promotion_checked_icon);
-        TextView promotionFakeVotes = (TextView) findViewById(R.id.promotion_fake_votes);
-        TextView promotionFakeIcon = (TextView) findViewById(R.id.promotion_fake_icon);
 
         providersForSignIn = new ArrayList<>();
 
@@ -366,7 +368,10 @@ public class NearbyPromotionsDisplayActivity extends AppCompatActivity implement
                     Promotion promotion = dataSnapshot.getValue(Promotion.class);
                     promotion.setUniqueId(dataSnapshot.getKey());
                     promotionAdapter.add(promotion);
+                    pPromotions.add(promotion);
                 }
+
+
 
                 @Override
                 public void onChildChanged(DataSnapshot dataSnapshot, String s) {
@@ -385,6 +390,8 @@ public class NearbyPromotionsDisplayActivity extends AppCompatActivity implement
                 }
             };
 
+
+            pPromotions.size();
             promotionsReference.addChildEventListener(databasePromotionsEventListener);
         }
     }
@@ -396,6 +403,7 @@ public class NearbyPromotionsDisplayActivity extends AppCompatActivity implement
                 public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                     Store store = dataSnapshot.getValue(Store.class);
                     stores.add(store);
+                    sStores.add(store);
                 }
 
                 @Override
@@ -415,6 +423,7 @@ public class NearbyPromotionsDisplayActivity extends AppCompatActivity implement
                 }
             };
 
+            sStores.size();
             storeReference.addChildEventListener(databaseStoresEventListener);
         }
 
@@ -499,7 +508,6 @@ public class NearbyPromotionsDisplayActivity extends AppCompatActivity implement
     }
 
     public void addStoresOnMap() {
-
         if (stores != null && !stores.isEmpty()) {
 
             for (int i = 0; i < stores.size(); i++) {
@@ -514,13 +522,14 @@ public class NearbyPromotionsDisplayActivity extends AppCompatActivity implement
                             .position(new LatLng(latitude, longitude))
                             .title(stores.get(i).getName()));
                             */
+                mMap.setOnMarkerClickListener(this);
                 LatLng location2 = new LatLng(stores.get(i).getLat(), stores.get(i).getLng());
-               // mMap.moveCamera(CameraUpdateFactory.newLatLng(location2));
-                mMap.addMarker(new MarkerOptions()
+                Marker mMarker = mMap.addMarker(new MarkerOptions()
                         .position(new LatLng(stores.get(i).getLat(), stores.get(i).getLng()))
                         .title(stores.get(i).getName()));
+                markers.add(mMarker);
             }
-            // Log.i("nearbypromotions","stors from db" + stores.get(1).getName()+ stores.get(1).getLat());
+            markers.size();
         }
     }
 
@@ -576,6 +585,36 @@ public class NearbyPromotionsDisplayActivity extends AppCompatActivity implement
 
     @Override
     public void onProviderDisabled(String s) {
+
+    }
+
+    @Override
+    public boolean onMarkerClick(Marker marker) {
+        //promotionAdapter.clear();
+        //promotionAdapter.notifyDataSetChanged();
+        ArrayList<Promotion> promotions = new ArrayList<>();
+        promotionAdapter2 = new PromotionAdapter(this, R.layout.promotion_item, promotions);
+        promotionListView.setAdapter(promotionAdapter2);
+
+        //promotionListView.setAdapter(null);
+        int i,j,k;
+        for (i=0;i<markers.size();i++){
+            for (j=0;j<sStores.size();j++){
+                if ((markers.get(i).getTitle()).equalsIgnoreCase(sStores.get(j).getName())){
+                    promotionAdapter2.clear();
+                    promotionAdapter2.notifyDataSetChanged();
+                    for (k=0;k<pPromotions.size();k++){
+                        if((pPromotions.get(k).getStoreId()).equalsIgnoreCase(sStores.get(j).getId())){
+                            Promotion promo = pPromotions.get(k);
+                            promotionAdapter2.add(promo);
+                            //Log.i("promsss", promotionAdapter.getItem(0).getName()+"");
+                            //Log.i("promsss", promotionAdapter.getItem(1).getName()+"");
+                        }
+                    }
+                }
+            }
+        }
+        return true;
 
     }
 }

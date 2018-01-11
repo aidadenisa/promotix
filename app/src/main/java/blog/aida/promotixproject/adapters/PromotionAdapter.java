@@ -38,6 +38,8 @@ public class PromotionAdapter extends ArrayAdapter<Promotion> {
     private boolean isUserLoggedIn = false;
     private String loggedInUserId;
     private DatabaseReference promotionReference;
+    private String author;
+    private String storeName;
 
     public void setStoreDetailsFromDB(Store store) {
         this.store = store;
@@ -179,10 +181,19 @@ public class PromotionAdapter extends ArrayAdapter<Promotion> {
     }
 
     public void setUserLoggedIn(boolean isUserLoggedIn){
-
         this.isUserLoggedIn = isUserLoggedIn;
+    }
 
+    public String promotionUser(){
+        return promotion.getAuthor();
+    }
 
+    public String getStoreName(){
+        return store.getName();
+    }
+
+    public String getStoreId(){
+        return store.getId();
     }
 }
 
