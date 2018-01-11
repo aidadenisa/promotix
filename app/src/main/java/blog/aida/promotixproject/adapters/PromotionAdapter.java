@@ -15,7 +15,9 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import blog.aida.promotixproject.R;
 import blog.aida.promotixproject.model.Promotion;
@@ -35,8 +37,7 @@ public class PromotionAdapter extends ArrayAdapter<Promotion> {
     private Promotion promotion;
     private boolean isUserLoggedIn = false;
     private String loggedInUserId;
-    private int goodVotes;
-    private int badVotes;
+    private DatabaseReference promotionReference;
 
     public void setStoreDetailsFromDB(Store store) {
         this.store = store;
@@ -44,7 +45,9 @@ public class PromotionAdapter extends ArrayAdapter<Promotion> {
     }
 
     public void setLoggedInUserId(String loggedInUserId){
+
         this.loggedInUserId = loggedInUserId;
+        this.notifyDataSetChanged();
     }
 
 
@@ -77,13 +80,12 @@ public class PromotionAdapter extends ArrayAdapter<Promotion> {
             convertView = ((Activity) getContext()).getLayoutInflater().inflate(R.layout.promotion_item, parent, false);
         }
 
-
-        TextView promotionName = (TextView) convertView.findViewById(R.id.promotion_name);
-        TextView promotionShopName = (TextView) convertView.findViewById(R.id.promotion_shop_name);
-        TextView promotionShopAddress = (TextView) convertView.findViewById(R.id.promotion_shop_address);
-        TextView promotionCheckedVotes = (TextView) convertView.findViewById(R.id.promotion_checked_votes);
+        final TextView promotionName = (TextView) convertView.findViewById(R.id.promotion_name);
+        final TextView promotionShopName = (TextView) convertView.findViewById(R.id.promotion_shop_name);
+        final TextView promotionShopAddress = (TextView) convertView.findViewById(R.id.promotion_shop_address);
+        final TextView promotionCheckedVotes = (TextView) convertView.findViewById(R.id.promotion_checked_votes);
         final TextView promotionCheckedIcon = (TextView) convertView.findViewById(R.id.promotion_checked_icon);
-        TextView promotionFakeVotes = (TextView) convertView.findViewById(R.id.promotion_fake_votes);
+        final TextView promotionFakeVotes = (TextView) convertView.findViewById(R.id.promotion_fake_votes);
         TextView promotionFakeIcon = (TextView) convertView.findViewById(R.id.promotion_fake_icon);
         TextView deleteItemIcon = (TextView) convertView.findViewById(R.id.delete_item_icon);
 
@@ -102,42 +104,57 @@ public class PromotionAdapter extends ArrayAdapter<Promotion> {
                         }
                     });
 
-        /*
+
+
+
         promotionCheckedIcon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //PromotionAdapter.this.remove(getItem(position));
                 PromotionAdapter.this.notifyDataSetChanged();
-                //Log.i("vote", "vote good");
 
                 if(!isUserLoggedIn){
                     Toast.makeText(getContext(),"You need to be logged in in order to grade promotions.", Toast.LENGTH_SHORT).show();
-                    Log.i("vote", "vote good");
                     return;
                 }
 
-                Log.i("authe", promotion.getAuthor()+ "23");
-                /*if(promotion.getAuthor().equals(loggedInUserId)){
-                   // Toast.makeText(getContext(),"You can't grade your promotions.", Toast.LENGTH_SHORT).show();
-                    Log.i("voVO", "vote good");
+                if(promotion.getAuthor().equals(loggedInUserId)){
+                    Toast.makeText(getContext(),"You can't grade your promotions.", Toast.LENGTH_SHORT).show();
                     return;
                 }
-               // goodVotes= goodVotes +1;
-                //promotionCheckedIcon.setText(goodVotes);
-                Log.i("VVV", goodVotes+"");
-
+                int goodVotes = promotion.getGoodVotes();
+                goodVotes ++;
+                promotion.setGoodVotes(goodVotes);
+                if(promotion.getUniqueId() != null) {
+                    promotionReference = database.getReference().child("promotions").child(promotion.getUniqueId());
+                    promotionReference.child("goodVotes").setValue(goodVotes);
+                }
             }
         });
 
         promotionFakeIcon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-               // PromotionAdapter.this.remove(getItem(position));
                 PromotionAdapter.this.notifyDataSetChanged();
 
+                if(!isUserLoggedIn){
+                    Toast.makeText(getContext(),"You need to be logged in in order to grade promotions.", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                if(promotion.getAuthor().equals(loggedInUserId)){
+                    Toast.makeText(getContext(),"You can't grade your promotions.", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                int badVotes = promotion.getBadVotes();
+                badVotes ++;
+                promotion.setBadVotes(badVotes);
+                if(promotion.getUniqueId() != null) {
+                    promotionReference = database.getReference().child("promotions").child(promotion.getUniqueId());
+                    promotionReference.child("badVotes").setValue(badVotes);
+                }
             }
         });
-        */
+
 
         DatabaseReference storeReference = database.getReference().child("stores").child(promotion.getStoreId());
 
@@ -164,6 +181,8 @@ public class PromotionAdapter extends ArrayAdapter<Promotion> {
     public void setUserLoggedIn(boolean isUserLoggedIn){
 
         this.isUserLoggedIn = isUserLoggedIn;
+
+
     }
 }
 

@@ -109,6 +109,8 @@ public class UserPromotionsActivity extends AppCompatActivity {
             userName = "Hunter";
         }
 
+        promotionAdapter.setUserLoggedIn(true);
+        promotionAdapter.setLoggedInUserId(firebaseAuth.getUid());
     }
 
     //cand m-am delogat

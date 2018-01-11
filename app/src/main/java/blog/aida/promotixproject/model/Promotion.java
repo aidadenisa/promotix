@@ -19,6 +19,7 @@ public class Promotion {
     private String cuantum;
     private long promoEndDate;
     private String category;
+    private String uniqueId;
 
     public int getBadVotes() {
         return badVotes;
@@ -82,5 +83,13 @@ public class Promotion {
 
     public void setCuantum(String cuantum) {
         this.cuantum = cuantum;
+    }
+
+    public String getUniqueId() {
+        return uniqueId;
+    }
+
+    public void setUniqueId(String uniqueId) {
+        this.uniqueId = uniqueId;
     }
 }
