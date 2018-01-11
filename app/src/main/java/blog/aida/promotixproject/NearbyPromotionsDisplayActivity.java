@@ -172,7 +172,6 @@ public class NearbyPromotionsDisplayActivity extends AppCompatActivity implement
 
         drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawerToggle = new ActionBarDrawerToggle(this, drawerLayout, R.string.open, R.string.closed);
-
         drawerLayout.addDrawerListener(drawerToggle);
         drawerToggle.syncState();
 

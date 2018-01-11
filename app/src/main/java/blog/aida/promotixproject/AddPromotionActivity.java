@@ -160,6 +160,9 @@ public class AddPromotionActivity extends FragmentActivity implements OnMapReady
         TextView promotionEndDate = (TextView) findViewById(R.id.add_promotion_date_picker);
         promotionEndDate.setTypeface(FontManager.getTypeface(this,FontManager.FONTAWESOME));
 
+        TextView addPromoInLocationItem = findViewById(R.id.add_promo_in_location_item);
+        addPromoInLocationItem.setTypeface(FontManager.getTypeface(this,FontManager.FONTAWESOME));
+
         authStateListener = new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {

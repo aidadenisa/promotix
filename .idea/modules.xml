@@ -2,9 +2,9 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/PromotixProject.iml" filepath="$PROJECT_DIR$/PromotixProject.iml" />
       <module fileurl="file://E:\Promotix\promotix\PromotixProject.iml" filepath="E:\Promotix\promotix\PromotixProject.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
-      <module fileurl="file://$PROJECT_DIR$/promotix.iml" filepath="$PROJECT_DIR$/promotix.iml" />
       <module fileurl="file://G:\Old Aidad\AndroidStudioProjects\PromotixProject\promotix.iml" filepath="G:\Old Aidad\AndroidStudioProjects\PromotixProject\promotix.iml" />
     </modules>
   </component>

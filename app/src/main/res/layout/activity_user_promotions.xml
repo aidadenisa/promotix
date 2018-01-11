@@ -12,19 +12,23 @@
         android:layout_height="?attr/actionBarSize"
         android:background="?attr/colorPrimary"
         android:elevation="4dp"
-        android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
-        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"/>
+        android:theme="@style/Promotix"
+        app:popupTheme="@style/Promotix"/>
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textAlignment="center"
-        android:text="My Promotions"/>
+        android:text="My Promotions"
+        android:textSize="26sp"
+        android:textStyle="bold"
+        android:padding="16dp"
+        android:textColor="#757575"/>
 
     <ListView
         android:id="@+id/user_promotions_list_view"
         android:layout_width="match_parent"
-        android:layout_height="250dp"
+        android:layout_height="match_parent"
         android:background="#ffffff"
         android:layout_alignParentBottom="true"
         android:divider="@android:color/transparent"

@@ -24,6 +24,9 @@ import blog.aida.promotixproject.model.Promotion;
 import blog.aida.promotixproject.model.Store;
 import blog.aida.promotixproject.util.FontManager;
 
+import static android.graphics.Color.GREEN;
+import static android.graphics.Color.RED;
+
 /**
  * Created by aida on 06-Jan-18.
  */
@@ -98,13 +101,17 @@ public class PromotionAdapter extends ArrayAdapter<Promotion> {
         deleteItemIcon.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            PromotionAdapter.this.remove(getItem(position));
-                            PromotionAdapter.this.notifyDataSetChanged();
-
+                            if (loggedInUserId.equals(promotion.getAuthor())) {
+                                PromotionAdapter.this.remove(getItem(position));
+                                promotionReference = database.getReference().child("promotions").child(promotion.getUniqueId());
+                                promotionReference.removeValue();
+                                Toast.makeText(getContext(),"The promotion has been deleted",Toast.LENGTH_SHORT).show();
+                                PromotionAdapter.this.notifyDataSetChanged();
+                            } else {
+                                Toast.makeText(getContext(),"You must be logged in to delete this item",Toast.LENGTH_SHORT).show();
+                            }
                         }
                     });
-
-
 
 
         promotionCheckedIcon.setOnClickListener(new View.OnClickListener() {
@@ -121,9 +128,13 @@ public class PromotionAdapter extends ArrayAdapter<Promotion> {
                     Toast.makeText(getContext(),"You can't grade your promotions.", Toast.LENGTH_SHORT).show();
                     return;
                 }
+
+                ((TextView)v).setTextColor(GREEN);
+
                 int goodVotes = promotion.getGoodVotes();
                 goodVotes ++;
                 promotion.setGoodVotes(goodVotes);
+                v.setTag("voted");
                 if(promotion.getUniqueId() != null) {
                     promotionReference = database.getReference().child("promotions").child(promotion.getUniqueId());
                     promotionReference.child("goodVotes").setValue(goodVotes);
@@ -147,6 +158,7 @@ public class PromotionAdapter extends ArrayAdapter<Promotion> {
                 }
                 int badVotes = promotion.getBadVotes();
                 badVotes ++;
+                ((TextView)v).setTextColor(RED);
                 promotion.setBadVotes(badVotes);
                 if(promotion.getUniqueId() != null) {
                     promotionReference = database.getReference().child("promotions").child(promotion.getUniqueId());
