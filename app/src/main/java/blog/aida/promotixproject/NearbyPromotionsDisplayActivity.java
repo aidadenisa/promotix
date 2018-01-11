@@ -178,7 +178,6 @@ public class NearbyPromotionsDisplayActivity extends AppCompatActivity implement
 
         drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawerToggle = new ActionBarDrawerToggle(this, drawerLayout, R.string.open, R.string.closed);
-
         drawerLayout.addDrawerListener(drawerToggle);
         drawerToggle.syncState();
 
@@ -211,6 +210,11 @@ public class NearbyPromotionsDisplayActivity extends AppCompatActivity implement
 
             ;
         };
+
+        if(firebaseAuth.getCurrentUser() != null){
+            promotionAdapter.setUserLoggedIn(true);
+            promotionAdapter.setLoggedInUserId(firebaseAuth.getCurrentUser().getUid());
+        }
     }
 
 
@@ -366,7 +370,7 @@ public class NearbyPromotionsDisplayActivity extends AppCompatActivity implement
                 @Override
                 public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                     Promotion promotion = dataSnapshot.getValue(Promotion.class);
-                    promotion.setUniqueId(dataSnapshot.getKey());
+                    promotion.setId(dataSnapshot.getKey());
                     pPromotions.add(promotion);
                     promotionAdapter.add(promotion);
                 }

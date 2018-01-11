@@ -47,6 +47,7 @@
         android:layout_margin="20dp"
         android:text="@string/fa_plus"
         android:textSize="20sp"
+        android:textColor="#ffffff"
         android:onClick="openAddPromotionActivity"
         />
 
@@ -61,13 +62,14 @@
         tools:listitem="@layout/promotion_item" />
 
 
-        <android.support.v7.widget.Toolbar android:id="@+id/my_toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:background="?attr/colorPrimary"
-            android:elevation="4dp"
-            android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
-            app:popupTheme="@style/ThemeOverlay.AppCompat.Light"/>
+    <android.support.v7.widget.Toolbar android:id="@+id/my_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/colorPrimary"
+        android:elevation="4dp"
+        android:theme="@style/Promotix"
+        app:popupTheme="@style/Promotix"
+        app:titleTextColor="#ffffff"/>
 
 
     </RelativeLayout>

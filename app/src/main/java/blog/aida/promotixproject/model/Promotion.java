@@ -15,11 +15,12 @@ public class Promotion {
     private int goodVotes;
     private String author;
     private String storeId;
+    private String placeId;
     private String name;
     private String cuantum;
     private long promoEndDate;
     private String category;
-    private String uniqueId;
+    private String id;
 
     public int getBadVotes() {
         return badVotes;
@@ -51,6 +52,14 @@ public class Promotion {
 
     public void setStoreId(String storeId) {
         this.storeId = storeId;
+    }
+
+    public String getPlaceId() {
+        return placeId;
+    }
+
+    public void setPlaceId(String placeId) {
+        this.placeId = placeId;
     }
 
     public String getName() {
@@ -85,11 +94,11 @@ public class Promotion {
         this.cuantum = cuantum;
     }
 
-    public String getUniqueId() {
-        return uniqueId;
+    public String getId() {
+        return id;
     }
 
-    public void setUniqueId(String uniqueId) {
-        this.uniqueId = uniqueId;
+    public void setId(String id) {
+        this.id = id;
     }
 }

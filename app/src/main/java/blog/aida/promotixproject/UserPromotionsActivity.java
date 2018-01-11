@@ -10,6 +10,8 @@ import com.firebase.ui.auth.AuthUI;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
@@ -40,6 +42,38 @@ public class UserPromotionsActivity extends AppCompatActivity {
     private ChildEventListener databaseStoresEventListener;
 
     private String userName;
+
+    private void attachPromotionsDatabaseReadListener() {
+        if (databasePromotionsEventListener == null) {
+            databasePromotionsEventListener = new ChildEventListener() {
+                @Override
+                public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                    Promotion promotion = dataSnapshot.getValue(Promotion.class);
+                    promotion.setId(dataSnapshot.getKey());
+                    promotionAdapter.add(promotion);
+                }
+
+                @Override
+                public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+                    promotionAdapter.notifyDataSetChanged();
+                }
+
+                @Override
+                public void onChildRemoved(DataSnapshot dataSnapshot) {
+                }
+
+                @Override
+                public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+                }
+            };
+
+            promotionsReference.addChildEventListener(databasePromotionsEventListener);
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,27 +111,25 @@ public class UserPromotionsActivity extends AppCompatActivity {
             }
         };
 
+//        if(firebaseAuth.getCurrentUser() != null){
+//            promotionAdapter.setUserLoggedIn(true);
+//            promotionAdapter.setLoggedInUserId(firebaseAuth.getCurrentUser().getUid());
+//        }
+
+
 
         // Initialize promotion ListView and its adapter
         List<Promotion> promotions = new ArrayList<>();
         promotionListView = (ListView) findViewById(R.id.user_promotions_list_view);
-        Promotion p1 = new Promotion();
-        p1.setAuthor(firebaseAuth.getCurrentUser().getUid());
-        p1.setName("Promotie la pantofi");
-        p1.setPromoEndDate((new Date(2018,11,12)).getTime());
-        p1.setStoreId("s1");
-
-        Promotion p2 = new Promotion();
-        p2.setAuthor(firebaseAuth.getCurrentUser().getUid());
-        p2.setName("Promotie la lemne");
-        p2.setPromoEndDate((new Date(2018,12,12)).getTime());
-        p2.setStoreId("s1");
-
-        promotions.add(p1);
-        promotions.add(p2);
+        promotionsReference = database.getReference().child("promotions");
+        attachPromotionsDatabaseReadListener();
 
         promotionAdapter = new PromotionAdapter(this, R.layout.promotion_item, promotions);
+        promotionAdapter.setUserLoggedIn(true);
+        promotionAdapter.setLoggedInUserId(firebaseAuth.getUid());
         promotionListView.setAdapter(promotionAdapter);
+
+
 
     }
 

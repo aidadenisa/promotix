@@ -9,6 +9,7 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -24,6 +25,9 @@ import blog.aida.promotixproject.model.Promotion;
 import blog.aida.promotixproject.model.Store;
 import blog.aida.promotixproject.util.FontManager;
 
+import static android.graphics.Color.GREEN;
+import static android.graphics.Color.RED;
+
 /**
  * Created by aida on 06-Jan-18.
  */
@@ -32,14 +36,17 @@ public class PromotionAdapter extends ArrayAdapter<Promotion> {
 
     private FirebaseDatabase database = FirebaseDatabase.getInstance();
 
-    private ValueEventListener databaseEventListener;
+    private ChildEventListener databaseEventListener;
     private Store store;
-    private Promotion promotion;
     private boolean isUserLoggedIn = false;
     private String loggedInUserId;
     private DatabaseReference promotionReference;
     private String author;
     private String storeName;
+    private Promotion promotion;
+
+    private TextView promotionShopName;
+    private TextView promotionShopAddress;
 
     public void setStoreDetailsFromDB(Store store) {
         this.store = store;
@@ -57,14 +64,61 @@ public class PromotionAdapter extends ArrayAdapter<Promotion> {
         super(context,resource,objects);
     }
 
+//    public void setStoreId(String id) {
+//        promotion.setStoreId(id);
+////    }
+//    private void attachDatabaseReadListener(final PromotionAdapter self, DatabaseReference storeReference) {
+//        if (databaseEventListener == null) {
+//            databaseEventListener = new ValueEventListener() {
+//
+//                @Override
+//                public void onDataChange(DataSnapshot dataSnapshot) {
+//                    Store store = dataSnapshot.getValue(Store.class);
+//                    promotion.setStoreId(dataSnapshot.getRef().getKey());
+//                    promotionReference = database.getReference().child("promotions").child(promotion.getId());
+//                    promotionReference.child("storeId").setValue(dataSnapshot.getRef().getKey());
+//                    self.setStoreDetailsFromDB(store);
+//                }
+//
+//                @Override
+//                public void onCancelled(DatabaseError databaseError) {
+//                }
+//            };
+//
+//            storeReference.addValueEventListener(databaseEventListener);
+//        }
+//    }
+
     private void attachDatabaseReadListener(final PromotionAdapter self, DatabaseReference storeReference) {
         if (databaseEventListener == null) {
-            databaseEventListener = new ValueEventListener() {
+            databaseEventListener = new ChildEventListener() {
+                @Override
+                public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                    Store store = dataSnapshot.getValue(Store.class);
+                    if(store.getId().equals(promotion.getPlaceId())) {
+                        promotion.setStoreId(dataSnapshot.getKey());
+                        promotionReference = database.getReference().child("promotions").child(promotion.getId());
+                        promotionReference.child("storeId").setValue(dataSnapshot.getKey());
+                        promotionShopName.setText(store.getName());
+                        promotionShopAddress.setText(store.getAddress());
+                        PromotionAdapter.this.notifyDataSetChanged();
+                        self.setStoreDetailsFromDB(store);
+                    }
+
+                }
 
                 @Override
-                public void onDataChange(DataSnapshot dataSnapshot) {
-                    Store store = dataSnapshot.getValue(Store.class);
-                    self.setStoreDetailsFromDB(store);
+                public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+
+                }
+
+                @Override
+                public void onChildRemoved(DataSnapshot dataSnapshot) {
+                }
+
+                @Override
+                public void onChildMoved(DataSnapshot dataSnapshot, String s) {
                 }
 
                 @Override
@@ -72,7 +126,7 @@ public class PromotionAdapter extends ArrayAdapter<Promotion> {
                 }
             };
 
-            storeReference.addValueEventListener(databaseEventListener);
+            storeReference.addChildEventListener(databaseEventListener);
         }
     }
 
@@ -82,31 +136,39 @@ public class PromotionAdapter extends ArrayAdapter<Promotion> {
             convertView = ((Activity) getContext()).getLayoutInflater().inflate(R.layout.promotion_item, parent, false);
         }
 
+        promotion = getItem(position);
+
         final TextView promotionName = (TextView) convertView.findViewById(R.id.promotion_name);
-        final TextView promotionShopName = (TextView) convertView.findViewById(R.id.promotion_shop_name);
-        final TextView promotionShopAddress = (TextView) convertView.findViewById(R.id.promotion_shop_address);
+
         final TextView promotionCheckedVotes = (TextView) convertView.findViewById(R.id.promotion_checked_votes);
         final TextView promotionCheckedIcon = (TextView) convertView.findViewById(R.id.promotion_checked_icon);
         final TextView promotionFakeVotes = (TextView) convertView.findViewById(R.id.promotion_fake_votes);
         TextView promotionFakeIcon = (TextView) convertView.findViewById(R.id.promotion_fake_icon);
         TextView deleteItemIcon = (TextView) convertView.findViewById(R.id.delete_item_icon);
+        TextView promotionCuantum = convertView.findViewById(R.id.promotion_cuantum);
+        promotionShopName = (TextView) convertView.findViewById(R.id.promotion_shop_name);
+        promotionShopAddress = (TextView) convertView.findViewById(R.id.promotion_shop_address);
 
         promotionCheckedIcon.setTypeface(FontManager.getTypeface(getContext(),FontManager.FONTAWESOME));
         promotionFakeIcon.setTypeface(FontManager.getTypeface(getContext(),FontManager.FONTAWESOME));
         deleteItemIcon.setTypeface(FontManager.getTypeface(getContext(),FontManager.FONTAWESOME));
 
-        final Promotion promotion = getItem(position);
+
 
         deleteItemIcon.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            PromotionAdapter.this.remove(getItem(position));
-                            PromotionAdapter.this.notifyDataSetChanged();
-
+                            if (loggedInUserId.equals(promotion.getAuthor())) {
+                                PromotionAdapter.this.remove(getItem(position));
+                                promotionReference = database.getReference().child("promotions").child(promotion.getId());
+                                promotionReference.removeValue();
+                                Toast.makeText(getContext(),"The promotion has been deleted",Toast.LENGTH_SHORT).show();
+                                PromotionAdapter.this.notifyDataSetChanged();
+                            } else {
+                                Toast.makeText(getContext(),"You must be logged in to delete this item",Toast.LENGTH_SHORT).show();
+                            }
                         }
                     });
-
-
 
 
         promotionCheckedIcon.setOnClickListener(new View.OnClickListener() {
@@ -123,11 +185,15 @@ public class PromotionAdapter extends ArrayAdapter<Promotion> {
                     Toast.makeText(getContext(),"You can't grade your promotions.", Toast.LENGTH_SHORT).show();
                     return;
                 }
+
+                ((TextView)v).setTextColor(GREEN);
+
                 int goodVotes = promotion.getGoodVotes();
                 goodVotes ++;
                 promotion.setGoodVotes(goodVotes);
-                if(promotion.getUniqueId() != null) {
-                    promotionReference = database.getReference().child("promotions").child(promotion.getUniqueId());
+                v.setTag("voted");
+                if(promotion.getId() != null) {
+                    promotionReference = database.getReference().child("promotions").child(promotion.getId());
                     promotionReference.child("goodVotes").setValue(goodVotes);
                 }
             }
@@ -149,31 +215,40 @@ public class PromotionAdapter extends ArrayAdapter<Promotion> {
                 }
                 int badVotes = promotion.getBadVotes();
                 badVotes ++;
+                ((TextView)v).setTextColor(RED);
                 promotion.setBadVotes(badVotes);
-                if(promotion.getUniqueId() != null) {
-                    promotionReference = database.getReference().child("promotions").child(promotion.getUniqueId());
+                if(promotion.getId() != null) {
+                    promotionReference = database.getReference().child("promotions").child(promotion.getId());
                     promotionReference.child("badVotes").setValue(badVotes);
                 }
             }
         });
 
 
-        DatabaseReference storeReference = database.getReference().child("stores").child(promotion.getStoreId());
 
-        attachDatabaseReadListener(this, storeReference);
+            DatabaseReference storeReference = database.getReference().child("stores");
+            attachDatabaseReadListener(this, storeReference);
 
 
 
 
         if(store != null) {
-            promotionShopName.setText(store.getName());
-            promotionShopAddress.setText(store.getAddress());
+
+
         }
 
         if(promotion != null) {
             promotionName.setText(promotion.getName());
             promotionCheckedVotes.setText(promotion.getGoodVotes() + "");
             promotionFakeVotes.setText(promotion.getBadVotes() + "");
+            promotionCuantum.setText(promotion.getCuantum());
+
+            if(store != null) {
+                promotionShopName.setText(store.getName());
+                promotionShopAddress.setText(store.getAddress());
+            }
+
+
         }
 
 

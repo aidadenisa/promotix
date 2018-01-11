@@ -3,7 +3,7 @@
     android:id="@+id/drawer_menu_header"
     android:layout_height="140dp"
     android:layout_width="match_parent"
-    android:background="@color/colorPrimary">
+    android:background="#388E3C">
 
     <TextView
         android:id="@+id/welcome_header_message"
