@@ -184,16 +184,5 @@ public class PromotionAdapter extends ArrayAdapter<Promotion> {
         this.isUserLoggedIn = isUserLoggedIn;
     }
 
-    public String promotionUser(){
-        return promotion.getAuthor();
-    }
-
-    public String getStoreName(){
-        return store.getName();
-    }
-
-    public String getStoreId(){
-        return store.getId();
-    }
 }
 

@@ -367,8 +367,8 @@ public class NearbyPromotionsDisplayActivity extends AppCompatActivity implement
                 public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                     Promotion promotion = dataSnapshot.getValue(Promotion.class);
                     promotion.setUniqueId(dataSnapshot.getKey());
-                    promotionAdapter.add(promotion);
                     pPromotions.add(promotion);
+                    promotionAdapter.add(promotion);
                 }
 
 
@@ -512,22 +512,12 @@ public class NearbyPromotionsDisplayActivity extends AppCompatActivity implement
 
             for (int i = 0; i < stores.size(); i++) {
 
-               /* String[] latitudelongitude =  stores.get(i).getLatLng().split(",");
-                double latitude = Double.parseDouble(latitudelongitude[0]);
-                double longitude = Double.parseDouble(latitudelongitude[1]);
-                LatLng location = new LatLng(latitude, longitude);
-
-                    mMap.moveCamera(CameraUpdateFactory.newLatLng(location));
-                    mMap.addMarker(new MarkerOptions()
-                            .position(new LatLng(latitude, longitude))
-                            .title(stores.get(i).getName()));
-                            */
                 mMap.setOnMarkerClickListener(this);
-                LatLng location2 = new LatLng(stores.get(i).getLat(), stores.get(i).getLng());
                 Marker mMarker = mMap.addMarker(new MarkerOptions()
                         .position(new LatLng(stores.get(i).getLat(), stores.get(i).getLng()))
                         .title(stores.get(i).getName()));
                 markers.add(mMarker);
+                onMarkerClick(mMarker);
             }
             markers.size();
         }
@@ -590,30 +580,27 @@ public class NearbyPromotionsDisplayActivity extends AppCompatActivity implement
 
     @Override
     public boolean onMarkerClick(Marker marker) {
-        //promotionAdapter.clear();
-        //promotionAdapter.notifyDataSetChanged();
         ArrayList<Promotion> promotions = new ArrayList<>();
-        promotionAdapter2 = new PromotionAdapter(this, R.layout.promotion_item, promotions);
-        promotionListView.setAdapter(promotionAdapter2);
+        promotionAdapter = new PromotionAdapter(this, R.layout.promotion_item, promotions);
+        promotionListView.setAdapter(null);
+        promotionListView.setAdapter(promotionAdapter);
 
-        //promotionListView.setAdapter(null);
-        int i,j,k;
-        for (i=0;i<markers.size();i++){
+        int j,k;
             for (j=0;j<sStores.size();j++){
-                if ((markers.get(i).getTitle()).equalsIgnoreCase(sStores.get(j).getName())){
-                    promotionAdapter2.clear();
-                    promotionAdapter2.notifyDataSetChanged();
+
+                promotionListView.setAdapter(promotionAdapter);
+                if ((marker.getTitle()).equalsIgnoreCase(sStores.get(j).getName())){
+                    promotionAdapter.clear();
+                    promotionAdapter.notifyDataSetChanged();
                     for (k=0;k<pPromotions.size();k++){
                         if((pPromotions.get(k).getStoreId()).equalsIgnoreCase(sStores.get(j).getId())){
                             Promotion promo = pPromotions.get(k);
-                            promotionAdapter2.add(promo);
-                            //Log.i("promsss", promotionAdapter.getItem(0).getName()+"");
-                            //Log.i("promsss", promotionAdapter.getItem(1).getName()+"");
+                            promotionAdapter.add(promo);
                         }
                     }
+
                 }
             }
-        }
         return true;
 
     }
