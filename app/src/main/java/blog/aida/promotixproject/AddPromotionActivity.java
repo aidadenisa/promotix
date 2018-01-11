@@ -81,7 +81,6 @@ public class AddPromotionActivity extends FragmentActivity implements OnMapReady
 
     private GoogleMap mMap;
     private GoogleApiClient mGoogleApiClient;
-    public static final String TAG = NearbyPromotionsDisplayActivity.class.getSimpleName();
 
     private FirebaseDatabase database;
     private DatabaseReference promotionsReference;
@@ -264,7 +263,7 @@ public class AddPromotionActivity extends FragmentActivity implements OnMapReady
 
         promotion.setName(promotionDescription);
         promotion.setAuthor(promotionUser);
-        promotion.setStoreId(storeId);
+        promotion.setPlaceId(storeId);
         promotion.setPromoEndDate(promotionEndDate);
         promotion.setCuantum(promotionCuantum);
         //promotion.setCategory(promotionCategory);
@@ -276,6 +275,8 @@ public class AddPromotionActivity extends FragmentActivity implements OnMapReady
 
 
         Log.i("DB push", "A pus");
+        Toast.makeText(this,"Promotion added", Toast.LENGTH_SHORT).show();
+        finish();
     }
 
     private void setUpMapIfNeeded() {

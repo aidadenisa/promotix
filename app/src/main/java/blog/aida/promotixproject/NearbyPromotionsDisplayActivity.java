@@ -208,6 +208,11 @@ public class NearbyPromotionsDisplayActivity extends AppCompatActivity implement
 
             ;
         };
+
+        if(firebaseAuth.getCurrentUser() != null){
+            promotionAdapter.setUserLoggedIn(true);
+            promotionAdapter.setLoggedInUserId(firebaseAuth.getCurrentUser().getUid());
+        }
     }
 
 
@@ -363,7 +368,7 @@ public class NearbyPromotionsDisplayActivity extends AppCompatActivity implement
                 @Override
                 public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                     Promotion promotion = dataSnapshot.getValue(Promotion.class);
-                    promotion.setUniqueId(dataSnapshot.getKey());
+                    promotion.setId(dataSnapshot.getKey());
                     promotionAdapter.add(promotion);
                 }
 
