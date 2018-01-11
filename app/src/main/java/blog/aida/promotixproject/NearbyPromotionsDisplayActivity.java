@@ -512,18 +512,22 @@ public class NearbyPromotionsDisplayActivity extends AppCompatActivity implement
     }
 
     public void addStoresOnMap() {
-        if (stores != null && !stores.isEmpty()) {
+        if(mMap != null) { //prevent crashing if the map doesn't exist yet (eg. on starting activity)
+            mMap.clear();
 
-            for (int i = 0; i < stores.size(); i++) {
 
-                mMap.setOnMarkerClickListener(this);
-                Marker mMarker = mMap.addMarker(new MarkerOptions()
-                        .position(new LatLng(stores.get(i).getLat(), stores.get(i).getLng()))
-                        .title(stores.get(i).getName()));
-                markers.add(mMarker);
-                onMarkerClick(mMarker);
+            if (stores != null && !stores.isEmpty()) {
+
+                for (int i = 0; i < stores.size(); i++) {
+
+                    mMap.setOnMarkerClickListener(this);
+                    Marker mMarker = mMap.addMarker(new MarkerOptions()
+                            .position(new LatLng(stores.get(i).getLat(), stores.get(i).getLng()))
+                            .title(stores.get(i).getName()));
+                    markers.add(mMarker);
+                }
+                markers.size();
             }
-            markers.size();
         }
     }
 
@@ -597,7 +601,7 @@ public class NearbyPromotionsDisplayActivity extends AppCompatActivity implement
                     promotionAdapter.clear();
                     promotionAdapter.notifyDataSetChanged();
                     for (k=0;k<pPromotions.size();k++){
-                        if((pPromotions.get(k).getStoreId()).equalsIgnoreCase(sStores.get(j).getId())){
+                        if((pPromotions.get(k).getPlaceId()).equalsIgnoreCase(sStores.get(j).getId())){
                             Promotion promo = pPromotions.get(k);
                             promotionAdapter.add(promo);
                         }

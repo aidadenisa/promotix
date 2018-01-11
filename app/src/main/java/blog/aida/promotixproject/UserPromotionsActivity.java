@@ -49,8 +49,10 @@ public class UserPromotionsActivity extends AppCompatActivity {
                 @Override
                 public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                     Promotion promotion = dataSnapshot.getValue(Promotion.class);
-                    promotion.setId(dataSnapshot.getKey());
-                    promotionAdapter.add(promotion);
+                    if (firebaseAuth.getCurrentUser().getUid().equals(promotion.getAuthor())) {
+                        promotion.setId(dataSnapshot.getKey());
+                        promotionAdapter.add(promotion);
+                    }
                 }
 
                 @Override

@@ -274,6 +274,7 @@ public class AddPromotionActivity extends FragmentActivity implements OnMapReady
         promotionsReference.push().setValue(promotion);
 
 
+
         Log.i("DB push", "A pus");
         Toast.makeText(this,"Promotion added", Toast.LENGTH_SHORT).show();
         finish();

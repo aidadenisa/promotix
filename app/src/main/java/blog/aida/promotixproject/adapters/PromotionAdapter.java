@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import blog.aida.promotixproject.NearbyPromotionsDisplayActivity;
 import blog.aida.promotixproject.R;
 import blog.aida.promotixproject.model.Promotion;
 import blog.aida.promotixproject.model.Store;
@@ -164,6 +165,7 @@ public class PromotionAdapter extends ArrayAdapter<Promotion> {
                                 promotionReference.removeValue();
                                 Toast.makeText(getContext(),"The promotion has been deleted",Toast.LENGTH_SHORT).show();
                                 PromotionAdapter.this.notifyDataSetChanged();
+
                             } else {
                                 Toast.makeText(getContext(),"You must be logged in to delete this item",Toast.LENGTH_SHORT).show();
                             }
@@ -226,8 +228,8 @@ public class PromotionAdapter extends ArrayAdapter<Promotion> {
 
 
 
-            DatabaseReference storeReference = database.getReference().child("stores");
-            attachDatabaseReadListener(this, storeReference);
+        DatabaseReference storeReference = database.getReference().child("stores");
+        attachDatabaseReadListener(this, storeReference);
 
 
 
