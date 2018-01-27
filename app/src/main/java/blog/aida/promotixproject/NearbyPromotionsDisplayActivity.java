@@ -121,7 +121,6 @@ public class NearbyPromotionsDisplayActivity extends AppCompatActivity implement
     private ActionBarDrawerToggle drawerToggle;
 
     private ArrayList<Promotion> pPromotions = new ArrayList<Promotion>();
-    private ArrayList<Store> sStores = new ArrayList<Store>();
     private ArrayList<Marker> markers = new ArrayList<Marker>();
 
 
@@ -172,6 +171,8 @@ public class NearbyPromotionsDisplayActivity extends AppCompatActivity implement
         Button addPromotionButton = (Button) findViewById(R.id.add_promotion_button);
         addPromotionButton.setTypeface(FontManager.getTypeface(this,FontManager.FONTAWESOME));
 
+        Button backToAllPromotionsButton = (Button) findViewById(R.id.add_back_button);
+        backToAllPromotionsButton.setTypeface(FontManager.getTypeface(this,FontManager.FONTAWESOME));
 
         Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
         setSupportActionBar(myToolbar);
@@ -268,6 +269,10 @@ public class NearbyPromotionsDisplayActivity extends AppCompatActivity implement
     public void openViewMyPromotionsActivity() {
         Intent goToViewMyPromotionsActivity = new Intent(this, UserPromotionsActivity.class);
         startActivity(goToViewMyPromotionsActivity);
+    }
+
+    public void backToPromotionsActivity(View v) {
+        promotionListView.setAdapter(promotionAdapter);
     }
 
     @Override
@@ -395,7 +400,7 @@ public class NearbyPromotionsDisplayActivity extends AppCompatActivity implement
             };
 
 
-            pPromotions.size();
+           // pPromotions.size();
             promotionsReference.addChildEventListener(databasePromotionsEventListener);
         }
     }
@@ -407,7 +412,6 @@ public class NearbyPromotionsDisplayActivity extends AppCompatActivity implement
                 public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                     Store store = dataSnapshot.getValue(Store.class);
                     stores.add(store);
-                    sStores.add(store);
                 }
 
                 @Override
@@ -427,7 +431,6 @@ public class NearbyPromotionsDisplayActivity extends AppCompatActivity implement
                 }
             };
 
-            sStores.size();
             storeReference.addChildEventListener(databaseStoresEventListener);
         }
 
@@ -512,21 +515,38 @@ public class NearbyPromotionsDisplayActivity extends AppCompatActivity implement
     }
 
     public void addStoresOnMap() {
-        if(mMap != null) { //prevent crashing if the map doesn't exist yet (eg. on starting activity)
+        if (mMap != null) { //prevent crashing if the map doesn't exist yet (eg. on starting activity)
             mMap.clear();
 
+            ArrayList<Promotion> promotions = new ArrayList<>();
+            promotionAdapter2 = new PromotionAdapter(this, R.layout.promotion_item, promotions);
 
             if (stores != null && !stores.isEmpty()) {
 
+                //for (int i=0;i<pPromotions.size)
+                mMap.setOnMarkerClickListener(this);
                 for (int i = 0; i < stores.size(); i++) {
 
-                    mMap.setOnMarkerClickListener(this);
-                    Marker mMarker = mMap.addMarker(new MarkerOptions()
-                            .position(new LatLng(stores.get(i).getLat(), stores.get(i).getLng()))
-                            .title(stores.get(i).getName()));
-                    markers.add(mMarker);
+                        for (int k = 0; k < pPromotions.size(); k++) {
+                            if ((pPromotions.get(k).getPlaceId()).equalsIgnoreCase(stores.get(i).getId())) {
+                                Promotion promo = pPromotions.get(k);
+                                promotionAdapter2.add(promo);
+                            }
+
+                        }
+                    if (!promotionAdapter2.isEmpty()) {
+                        Marker mMarker = mMap.addMarker(new MarkerOptions()
+                                .position(new LatLng(stores.get(i).getLat(), stores.get(i).getLng()))
+                                .title(stores.get(i).getName()));
+
+                        if ((mMarker.getTitle()).equalsIgnoreCase(stores.get(i).getName())) {
+                            promotionAdapter2.clear();
+                            promotionAdapter2.notifyDataSetChanged();
+                        }
+
+                    }
+
                 }
-                markers.size();
             }
         }
     }
@@ -586,24 +606,23 @@ public class NearbyPromotionsDisplayActivity extends AppCompatActivity implement
 
     }
 
-    @Override
     public boolean onMarkerClick(Marker marker) {
         ArrayList<Promotion> promotions = new ArrayList<>();
-        promotionAdapter = new PromotionAdapter(this, R.layout.promotion_item, promotions);
+        promotionAdapter2 = new PromotionAdapter(this, R.layout.promotion_item, promotions);
         promotionListView.setAdapter(null);
-        promotionListView.setAdapter(promotionAdapter);
+        promotionListView.setAdapter(promotionAdapter2);
 
         int j,k;
-            for (j=0;j<sStores.size();j++){
+            for (j=0;j<stores.size();j++){
 
-                promotionListView.setAdapter(promotionAdapter);
-                if ((marker.getTitle()).equalsIgnoreCase(sStores.get(j).getName())){
-                    promotionAdapter.clear();
-                    promotionAdapter.notifyDataSetChanged();
+                promotionListView.setAdapter(promotionAdapter2);
+                if ((marker.getTitle()).equalsIgnoreCase(stores.get(j).getName())){
+                    promotionAdapter2.clear();
+                    promotionAdapter2.notifyDataSetChanged();
                     for (k=0;k<pPromotions.size();k++){
-                        if((pPromotions.get(k).getPlaceId()).equalsIgnoreCase(sStores.get(j).getId())){
+                        if((pPromotions.get(k).getPlaceId()).equalsIgnoreCase(stores.get(j).getId())){
                             Promotion promo = pPromotions.get(k);
-                            promotionAdapter.add(promo);
+                            promotionAdapter2.add(promo);
                         }
                     }
 

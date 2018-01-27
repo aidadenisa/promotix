@@ -11,4 +11,6 @@
 
     <string name="fa_trash_o">&#xf014;</string>
     <string name="fa_map_marker">&#xf041;</string>
+
+    <string name="fa_angle_left">&#xf104;</string>
 </resources>

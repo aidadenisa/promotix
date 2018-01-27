@@ -147,7 +147,6 @@ public class PromotionAdapter extends ArrayAdapter<Promotion> {
                         }
                     });
 
-
         promotionCheckedIcon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
