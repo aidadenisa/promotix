@@ -1,7 +1,10 @@
 package blog.aida.promotixproject.model;
 
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by aida on 06-Jan-18.
@@ -9,12 +12,24 @@ import java.util.List;
 
 public class User {
 
+    private String id;
+    private String databaseReferenceId;
     private String firstName;
     private String lastName;
     private String email;
     private List<Promotion> promotions;
     private boolean isBlocked;
     private URL photo;
+    private Map<String,String> likedPromotions = new HashMap<>();
+    private Map<String,String> dislikedPromotions = new HashMap<>();
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
 
     public String getFirstName() {
         return firstName;
@@ -64,4 +79,27 @@ public class User {
         this.photo = photo;
     }
 
+    public Map<String,String> getLikedPromotions() {
+        return likedPromotions;
+    }
+
+    public void setLikedPromotions(Map<String,String> likedPromotions) {
+        this.likedPromotions = likedPromotions;
+    }
+
+    public Map<String,String> getDislikedPromotions() {
+        return dislikedPromotions;
+    }
+
+    public void setDislikedPromotions(Map<String,String> dislikedPromotions) {
+        this.dislikedPromotions = dislikedPromotions;
+    }
+
+    public String getDatabaseReferenceId() {
+        return databaseReferenceId;
+    }
+
+    public void setDatabaseReferenceId(String databaseReferenceId) {
+        this.databaseReferenceId = databaseReferenceId;
+    }
 }
