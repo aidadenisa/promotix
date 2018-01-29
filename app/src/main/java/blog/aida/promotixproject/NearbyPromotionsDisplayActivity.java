@@ -69,6 +69,7 @@ import java.util.List;
 import blog.aida.promotixproject.adapters.PromotionAdapter;
 import blog.aida.promotixproject.model.Promotion;
 import blog.aida.promotixproject.model.Store;
+import blog.aida.promotixproject.model.User;
 import blog.aida.promotixproject.util.FontManager;
 
 import com.google.android.gms.location.places.GeoDataClient;
@@ -107,6 +108,7 @@ public class NearbyPromotionsDisplayActivity extends AppCompatActivity implement
     private FirebaseDatabase database;
     private DatabaseReference promotionsReference;
     private DatabaseReference storeReference;
+    private DatabaseReference userReference;
 
     private ListView promotionListView;
     private PromotionAdapter promotionAdapter;
@@ -114,8 +116,10 @@ public class NearbyPromotionsDisplayActivity extends AppCompatActivity implement
 
     private ChildEventListener databasePromotionsEventListener;
     private ChildEventListener databaseStoresEventListener;
+    private ChildEventListener databaseUsersEventListener;
 
     private ArrayList<Store> stores = new ArrayList<Store>();
+    private User loggedUser;
 
     private DrawerLayout drawerLayout;
     private ActionBarDrawerToggle drawerToggle;
@@ -157,9 +161,11 @@ public class NearbyPromotionsDisplayActivity extends AppCompatActivity implement
 
         promotionsReference = database.getReference().child("promotions");
         storeReference = database.getReference().child("stores");
+        userReference = database.getReference().child("users");
 
         attachPromotionsDatabaseReadListener();
         attachStoresDatabaseReadListener();
+//        attachUsersDatabaseReadListener();
 
         // Initialize promotion ListView and its adapter
         List<Promotion> promotions = new ArrayList<>();
@@ -214,7 +220,8 @@ public class NearbyPromotionsDisplayActivity extends AppCompatActivity implement
 
         if(firebaseAuth.getCurrentUser() != null){
             promotionAdapter.setUserLoggedIn(true);
-            promotionAdapter.setLoggedInUserId(firebaseAuth.getCurrentUser().getUid());
+//            promotionAdapter.setLoggedInUserId(firebaseAuth.getCurrentUser().getUid());
+            promotionAdapter.setLoggedInUser(loggedUser);
         }
     }
 
@@ -226,10 +233,15 @@ public class NearbyPromotionsDisplayActivity extends AppCompatActivity implement
         } else {
             userName = "Hunter";
         }
+
+        attachUsersDatabaseReadListener();
+
         setMenuItemsVisibility(true);
         setHeaderMessage(userName);
         promotionAdapter.setUserLoggedIn(true);
-        promotionAdapter.setLoggedInUserId(firebaseAuth.getUid());
+//        promotionAdapter.setLoggedInUserId(firebaseAuth.getUid());
+
+
     }
 
     //cand m-am delogat
@@ -384,14 +396,17 @@ public class NearbyPromotionsDisplayActivity extends AppCompatActivity implement
 
                 @Override
                 public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+                    promotionAdapter.notifyDataSetChanged();
                 }
 
                 @Override
                 public void onChildRemoved(DataSnapshot dataSnapshot) {
+                    promotionAdapter.notifyDataSetChanged();
                 }
 
                 @Override
                 public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+                    promotionAdapter.notifyDataSetChanged();
                 }
 
                 @Override
@@ -416,14 +431,17 @@ public class NearbyPromotionsDisplayActivity extends AppCompatActivity implement
 
                 @Override
                 public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+                    promotionAdapter.notifyDataSetChanged();
                 }
 
                 @Override
                 public void onChildRemoved(DataSnapshot dataSnapshot) {
+                    promotionAdapter.notifyDataSetChanged();
                 }
 
                 @Override
                 public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+                    promotionAdapter.notifyDataSetChanged();
                 }
 
                 @Override
@@ -432,6 +450,7 @@ public class NearbyPromotionsDisplayActivity extends AppCompatActivity implement
             };
 
             storeReference.addChildEventListener(databaseStoresEventListener);
+
         }
 
         storeReference.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -444,6 +463,74 @@ public class NearbyPromotionsDisplayActivity extends AppCompatActivity implement
             public void onCancelled(DatabaseError firebaseError) {
             }
         });
+    }
+
+    private void attachUsersDatabaseReadListener() {
+        if (databaseUsersEventListener == null) {
+            databaseUsersEventListener = new ChildEventListener() {
+                @Override
+                public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                    User user = dataSnapshot.getValue(User.class);
+                    if(user.getId().equals(firebaseAuth.getCurrentUser().getUid())) {
+                        loggedUser = user;
+                        loggedUser.setDatabaseReferenceId(dataSnapshot.getKey());
+                        promotionAdapter.setLoggedInUser(loggedUser);
+                        return;
+                    }
+                }
+
+                @Override
+                public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+                    promotionAdapter.notifyDataSetChanged();
+                }
+
+                @Override
+                public void onChildRemoved(DataSnapshot dataSnapshot) {
+                    promotionAdapter.notifyDataSetChanged();
+                }
+
+                @Override
+                public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+                    promotionAdapter.notifyDataSetChanged();
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+                }
+            };
+
+
+
+            userReference.addChildEventListener(databaseUsersEventListener);
+
+            userReference.addListenerForSingleValueEvent(new ValueEventListener() {
+                public void onDataChange(DataSnapshot dataSnapshot) {
+
+                    if(loggedUser == null) {
+                        FirebaseUser currentUser = firebaseAuth.getCurrentUser();
+                        User newUser = new User();
+
+                        newUser.setId(currentUser.getUid());
+                        newUser.setBlocked(false);
+                        newUser.setEmail(currentUser.getEmail());
+                        newUser.setFirstName(currentUser.getDisplayName());
+
+                        promotionAdapter.setLoggedInUser(newUser);
+
+                        String key = userReference.push().getKey();
+
+                        userReference.push().child(key).setValue(newUser);
+
+                        loggedUser = newUser;
+                        loggedUser.setDatabaseReferenceId(key);
+                    }
+
+
+
+                }
+                public void onCancelled(DatabaseError firebaseError) { }
+            });
+        }
     }
 
 

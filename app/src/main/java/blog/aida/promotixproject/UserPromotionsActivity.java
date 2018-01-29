@@ -14,6 +14,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -21,6 +22,7 @@ import java.util.List;
 
 import blog.aida.promotixproject.adapters.PromotionAdapter;
 import blog.aida.promotixproject.model.Promotion;
+import blog.aida.promotixproject.model.User;
 
 public class UserPromotionsActivity extends AppCompatActivity {
 
@@ -30,6 +32,7 @@ public class UserPromotionsActivity extends AppCompatActivity {
     private FirebaseDatabase database;
     private DatabaseReference promotionsReference;
     private DatabaseReference storeReference;
+    private DatabaseReference userReference;
 
     private ListView promotionListView;
     private PromotionAdapter promotionAdapter;
@@ -40,8 +43,10 @@ public class UserPromotionsActivity extends AppCompatActivity {
 
     private ChildEventListener databasePromotionsEventListener;
     private ChildEventListener databaseStoresEventListener;
+    private ChildEventListener databaseUsersEventListener;
 
     private String userName;
+    private User loggedUser;
 
     private void attachPromotionsDatabaseReadListener() {
         if (databasePromotionsEventListener == null) {
@@ -123,14 +128,16 @@ public class UserPromotionsActivity extends AppCompatActivity {
         // Initialize promotion ListView and its adapter
         List<Promotion> promotions = new ArrayList<>();
         promotionListView = (ListView) findViewById(R.id.user_promotions_list_view);
+
         promotionsReference = database.getReference().child("promotions");
+        userReference = database.getReference().child("users");
+
         attachPromotionsDatabaseReadListener();
 
         promotionAdapter = new PromotionAdapter(this, R.layout.promotion_item, promotions);
         promotionAdapter.setUserLoggedIn(true);
-        promotionAdapter.setLoggedInUserId(firebaseAuth.getUid());
+//        promotionAdapter.setLoggedInUserId(firebaseAuth.getUid());
         promotionListView.setAdapter(promotionAdapter);
-
 
 
     }
@@ -143,12 +150,72 @@ public class UserPromotionsActivity extends AppCompatActivity {
             userName = "Hunter";
         }
 
+        attachUsersDatabaseReadListener();
+
         promotionAdapter.setUserLoggedIn(true);
-        promotionAdapter.setLoggedInUserId(firebaseAuth.getUid());
+//        promotionAdapter.setLoggedInUserId(firebaseAuth.getUid());
+        promotionAdapter.setLoggedInUser(loggedUser);
     }
 
     //cand m-am delogat
     private void onSignedOutcleanup() {
         userName = ANONYMOUS;
+    }
+
+    private void attachUsersDatabaseReadListener() {
+        if (databaseUsersEventListener == null) {
+            databaseUsersEventListener = new ChildEventListener() {
+                @Override
+                public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                    User user = dataSnapshot.getValue(User.class);
+                    if(user.getId().equals(firebaseAuth.getCurrentUser().getUid())) {
+                        loggedUser = user;
+                        promotionAdapter.setLoggedInUser(loggedUser);
+                        return;
+                    }
+                }
+
+                @Override
+                public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+                }
+
+                @Override
+                public void onChildRemoved(DataSnapshot dataSnapshot) {
+                }
+
+                @Override
+                public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+                }
+            };
+
+
+
+            userReference.addChildEventListener(databaseUsersEventListener);
+
+            userReference.addListenerForSingleValueEvent(new ValueEventListener() {
+                public void onDataChange(DataSnapshot dataSnapshot) {
+
+                    if(loggedUser == null) {
+                        FirebaseUser currentUser = firebaseAuth.getCurrentUser();
+                        User newUser = new User();
+
+                        newUser.setId(currentUser.getUid());
+                        newUser.setBlocked(false);
+                        newUser.setEmail(currentUser.getEmail());
+                        newUser.setFirstName(currentUser.getDisplayName());
+
+                        promotionAdapter.setLoggedInUser(newUser);
+
+                        userReference.push().setValue(newUser);
+                    }
+
+                }
+                public void onCancelled(DatabaseError firebaseError) { }
+            });
+        }
     }
 }
