@@ -45,11 +45,16 @@ public class PromotionAdapter extends ArrayAdapter<Promotion> {
     private boolean isUserLoggedIn = false;
     private DatabaseReference promotionReference;
     private DatabaseReference userReference;
-//    private String author;
+    private String authorId;
     private Promotion promotion;
     private User loggedInUser;
 
     private TextView deleteItemIcon;
+
+    public void setLoggedInUserId(String id) {
+        authorId = id;
+        this.notifyDataSetChanged();
+    }
 
     public void setLoggedInUser(User user) {
         this.loggedInUser = user;
@@ -131,10 +136,11 @@ public class PromotionAdapter extends ArrayAdapter<Promotion> {
         promotionFakeIcon.setTypeface(FontManager.getTypeface(getContext(),FontManager.FONTAWESOME));
         deleteItemIcon.setTypeface(FontManager.getTypeface(getContext(),FontManager.FONTAWESOME));
 
-        if (loggedInUser!= null && loggedInUser.getId().equals(promotion.getAuthor())) {
-            deleteItemIcon.setVisibility(View.VISIBLE);
+        if ((loggedInUser!= null && loggedInUser.getId().equals(promotion.getAuthor())) || (authorId!=null && authorId.equals(promotion.getAuthor()))) {
+//            deleteItemIcon.setVisibility(View.VISIBLE);
         } else {
             deleteItemIcon.setVisibility(View.GONE);
+
         }
 
         if(loggedInUser!= null && loggedInUser.getLikedPromotions() != null && loggedInUser.getLikedPromotions().containsValue(promotion.getId())) {
@@ -148,7 +154,7 @@ public class PromotionAdapter extends ArrayAdapter<Promotion> {
         deleteItemIcon.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            if (loggedInUser.getId().equals(promotion.getAuthor())) {
+                            if (loggedInUser!= null && loggedInUser.getId().equals(promotion.getAuthor())) {
                                 PromotionAdapter.this.remove(getItem(position));
                                 promotionReference = database.getReference().child("promotions").child(promotion.getId());
                                 promotionReference.removeValue();
@@ -172,7 +178,7 @@ public class PromotionAdapter extends ArrayAdapter<Promotion> {
                     return;
                 }
 
-                if(clickedPromotion.getAuthor().equals(loggedInUser.getId())){
+                if(loggedInUser != null && clickedPromotion.getAuthor().equals(loggedInUser.getId())){
                     Toast.makeText(getContext(),"You can't grade your promotions.", Toast.LENGTH_SHORT).show();
                     return;
                 }

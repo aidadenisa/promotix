@@ -471,7 +471,7 @@ public class NearbyPromotionsDisplayActivity extends AppCompatActivity implement
                 @Override
                 public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                     User user = dataSnapshot.getValue(User.class);
-                    if(user.getId().equals(firebaseAuth.getCurrentUser().getUid())) {
+                    if( user != null && user.getId() != null && user.getId().equals(firebaseAuth.getCurrentUser().getUid())) {
                         loggedUser = user;
                         loggedUser.setDatabaseReferenceId(dataSnapshot.getKey());
                         promotionAdapter.setLoggedInUser(loggedUser);

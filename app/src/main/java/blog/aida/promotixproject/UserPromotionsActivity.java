@@ -67,10 +67,12 @@ public class UserPromotionsActivity extends AppCompatActivity {
 
                 @Override
                 public void onChildRemoved(DataSnapshot dataSnapshot) {
+                    promotionAdapter.notifyDataSetChanged();
                 }
 
                 @Override
                 public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+                    promotionAdapter.notifyDataSetChanged();
                 }
 
                 @Override
@@ -136,7 +138,7 @@ public class UserPromotionsActivity extends AppCompatActivity {
 
         promotionAdapter = new PromotionAdapter(this, R.layout.promotion_item, promotions);
         promotionAdapter.setUserLoggedIn(true);
-//        promotionAdapter.setLoggedInUserId(firebaseAuth.getUid());
+        promotionAdapter.setLoggedInUserId(firebaseAuth.getUid());
         promotionListView.setAdapter(promotionAdapter);
 
 
@@ -150,11 +152,8 @@ public class UserPromotionsActivity extends AppCompatActivity {
             userName = "Hunter";
         }
 
-        attachUsersDatabaseReadListener();
-
         promotionAdapter.setUserLoggedIn(true);
-//        promotionAdapter.setLoggedInUserId(firebaseAuth.getUid());
-        promotionAdapter.setLoggedInUser(loggedUser);
+        promotionAdapter.setLoggedInUserId(firebaseAuth.getUid());
     }
 
     //cand m-am delogat
@@ -170,21 +169,24 @@ public class UserPromotionsActivity extends AppCompatActivity {
                     User user = dataSnapshot.getValue(User.class);
                     if(user.getId().equals(firebaseAuth.getCurrentUser().getUid())) {
                         loggedUser = user;
-                        promotionAdapter.setLoggedInUser(loggedUser);
+//                        promotionAdapter.setLoggedInUser(loggedUser);
                         return;
                     }
                 }
 
                 @Override
                 public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+                    promotionAdapter.notifyDataSetChanged();
                 }
 
                 @Override
                 public void onChildRemoved(DataSnapshot dataSnapshot) {
+                    promotionAdapter.notifyDataSetChanged();
                 }
 
                 @Override
                 public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+                    promotionAdapter.notifyDataSetChanged();
                 }
 
                 @Override
@@ -208,7 +210,7 @@ public class UserPromotionsActivity extends AppCompatActivity {
                         newUser.setEmail(currentUser.getEmail());
                         newUser.setFirstName(currentUser.getDisplayName());
 
-                        promotionAdapter.setLoggedInUser(newUser);
+                        //promotionAdapter.setLoggedInUser(newUser);
 
                         userReference.push().setValue(newUser);
                     }
